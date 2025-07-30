@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Futuristik (Adaptif)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --secondary: #1a1a2e;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #7c3aed;
+            --accent-emerald: #10b981;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.5; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Glassmorphism */
+        .glass-strong {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+        }
+
+        /* Neon Effects */
+        .neon-text {
+            text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-cyan);
+        }
+
+        .neon-button {
+            background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neon-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .neon-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .neon-button:hover:before {
+            left: 100%;
+        }
+
+        /* Form Styling */
+        .futuristic-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .futuristic-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .futuristic-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Navigation */
+        .nav-item {
+            padding: 12px 20px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            border-color: var(--accent-cyan);
+        }
+
+        /* Cards */
+        .futuristic-card {
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .futuristic-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        /* Tables */
+        .futuristic-table-wrapper {
+            background: rgba(26, 26, 46, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            overflow-x: auto; /* Enable horizontal scroll on small screens */
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .futuristic-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .futuristic-table th {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .futuristic-table td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .futuristic-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-top: 3px solid var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 3px; }
+
+        /* Print styles */
+        @media print {
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+            .print-table { width: 100%; border-collapse: collapse; }
+            .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: left; color: #000 !important; }
+            .print-table th { background-color: #f0f0f0; font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div class="glass-strong p-8 w-full max-w-md mx-auto fade-in">
+            <div class="text-center mb-8">
+                <h1 class="orbitron text-3xl font-bold neon-text mb-2">SISTEM</h1>
+                <h2 class="orbitron text-xl text-cyan-400">ABSENSI</h2>
+                <div class="w-16 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 mx-auto mt-4 rounded"></div>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-cyan-400">Nama Pengguna</label>
+                    <input type="text" id="username" class="futuristic-input" placeholder="Masukkan nama pengguna" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-cyan-400">Kata Sandi</label>
+                    <input type="password" id="password" class="futuristic-input" placeholder="Masukkan kata sandi" required>
+                </div>
+                
+                <button type="submit" class="neon-button w-full orbitron font-semibold">
+                    <span id="loginText">MASUK SISTEM</span>
+                    <div id="loginSpinner" class="loading-spinner mx-auto hidden"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed left-0 top-0 h-full w-64 glass-strong z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="p-6">
+                <div class="text-center mb-8">
+                    <h1 class="orbitron text-xl font-bold neon-text">SISTEM ABSENSI</h1>
+                    <p class="text-cyan-400 text-sm">v2.0</p>
+                </div>
+                
+                <nav class="space-y-2">
+                    <div class="nav-item active" onclick="showSection('dashboard', this)">
+                        <span>🏠 Dasbor</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('classes', this)">
+                        <span>🏫 Kelola Kelas</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('students', this)">
+                        <span>👥 Kelola Siswa</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('attendance', this)">
+                        <span>📝 Ambil Absensi</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('view', this)">
+                        <span>👁️ Lihat Absensi</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('reports', this)">
+                        <span>📊 Buat Laporan</span>
+                    </div>
+                </nav>
+                
+                <div class="absolute bottom-6 left-6 right-6">
+                    <button onclick="logout()" class="w-full p-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+                        🚪 Keluar
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Overlay for Mobile -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="md:ml-64 min-h-screen transition-all duration-300 ease-in-out">
+            <!-- Header -->
+            <header class="glass-strong p-4 m-4 rounded-2xl">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <!-- Hamburger Menu for Mobile -->
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10" onclick="toggleSidebar()">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                        </button>
+                        <div>
+                            <h2 id="sectionTitle" class="orbitron text-xl md:text-2xl font-bold">Dasbor</h2>
+                            <p class="text-gray-400 text-sm hidden sm:block">Selamat datang di Sistem Absensi Futuristik</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm text-gray-400">Tanggal Saat Ini</p>
+                            <p id="currentDate" class="font-semibold"></p>
+                        </div>
+                        <div class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold">A</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="p-4">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="section fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <!-- Cards here -->
+                        <div class="futuristic-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Kelas</p>
+                                    <p id="totalClasses" class="text-2xl font-bold text-cyan-400">0</p>
+                                </div>
+                                <div class="text-3xl">🏫</div>
+                            </div>
+                        </div>
+                        <div class="futuristic-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Total Siswa</p>
+                                    <p id="totalStudents" class="text-2xl font-bold text-emerald-400">0</p>
+                                </div>
+                                <div class="text-3xl">👥</div>
+                            </div>
+                        </div>
+                        <div class="futuristic-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Absensi Hari Ini</p>
+                                    <p id="todayAttendance" class="text-2xl font-bold text-purple-400">0</p>
+                                </div>
+                                <div class="text-3xl">📝</div>
+                            </div>
+                        </div>
+                        <div class="futuristic-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-400 text-sm">Status Sistem</p>
+                                    <p class="text-2xl font-bold text-green-400">Daring</p>
+                                </div>
+                                <div class="text-3xl">⚡</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="futuristic-card">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Aksi Cepat</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <button onclick="showSection('attendance', this)" class="neon-button">Ambil Absensi</button>
+                            <button onclick="showSection('students', this)" class="neon-button">Tambah Siswa</button>
+                            <button onclick="showSection('reports', this)" class="neon-button">Buat Laporan</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Classes Section -->
+                <div id="classesSection" class="section hidden">
+                    <div class="futuristic-card mb-6">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Tambah Kelas Baru</h3>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <input type="text" id="inputKelas" placeholder="Masukkan nama kelas (cth: X IPA 1)" class="futuristic-input flex-1">
+                            <button onclick="tambahKelas()" class="neon-button">Tambah Kelas</button>
+                        </div>
+                    </div>
+                    
+                    <div class="futuristic-card">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Daftar Kelas</h3>
+                        <div id="daftarKelas" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <!-- Students Section -->
+                <div id="studentsSection" class="section hidden">
+                    <div class="futuristic-card mb-6">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Tambah Siswa Baru</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                <select id="selectKelasSiswa" class="futuristic-input"></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-cyan-400">Nama Siswa</label>
+                                <input type="text" id="inputSiswa" placeholder="Masukkan nama siswa" class="futuristic-input">
+                            </div>
+                        </div>
+                        <button onclick="tambahSiswa()" class="neon-button">Tambah Siswa</button>
+                    </div>
+                    
+                    <div class="futuristic-card">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Daftar Siswa</h3>
+                        <div id="daftarSiswa" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <!-- Attendance Section -->
+                <div id="attendanceSection" class="section hidden">
+                    <div class="futuristic-card mb-6">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Ambil Absensi Harian</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                <select id="selectKelasIsiAbsensi" onchange="tampilkanSiswaUntukAbsensi()" class="futuristic-input"></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-cyan-400">Tanggal</label>
+                                <p id="tanggalHariIni" class="text-lg font-semibold text-white p-3 bg-white/5 rounded-lg"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="futuristic-card">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Absensi Siswa</h3>
+                        <div class="futuristic-table-wrapper">
+                            <table class="futuristic-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Nama Siswa</th>
+                                        <th class="text-left">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelAbsensiSiswa"></tbody>
+                            </table>
+                        </div>
+                        <button onclick="simpanAbsensi()" class="neon-button mt-4">Simpan Absensi</button>
+                    </div>
+                </div>
+
+                <!-- View Attendance Section -->
+                <div id="viewSection" class="section hidden">
+                    <div class="futuristic-card mb-6">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Lihat & Ubah Absensi</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                <select id="selectKelasLihat" class="futuristic-input"></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Tanggal</label>
+                                <input type="date" id="inputTanggalLihat" class="futuristic-input">
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="tampilkanAbsensiTersimpan()" class="neon-button w-full">Lihat Absensi</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="futuristic-card">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Catatan Absensi</h3>
+                        <div class="futuristic-table-wrapper">
+                            <table class="futuristic-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Nama Siswa</th>
+                                        <th class="text-left">Status</th>
+                                        <th class="text-left">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelLihatAbsensi">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-gray-400 py-8">Pilih kelas dan tanggal untuk melihat data absensi</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="reportsSection" class="section hidden">
+                    <div class="futuristic-card mb-6">
+                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Jenis Laporan</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <!-- Report type radios -->
+                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
+                                <input type="radio" name="reportType" value="daily" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500">
+                                <span>Harian</span>
+                            </label>
+                             <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
+                                <input type="radio" name="reportType" value="weekly" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500">
+                                <span>Mingguan</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
+                                <input type="radio" name="reportType" value="monthly" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500">
+                                <span>Bulanan</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
+                                <input type="radio" name="reportType" value="semester" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500" checked>
+                                <span>Semester</span>
+                            </label>
+                        </div>
+
+                        <!-- Dynamic Report Forms -->
+                        <div id="reportForms">
+                            <!-- Daily Report Form -->
+                            <div id="dailyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-cyan-400/10 rounded-lg">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <select id="selectKelasDailyLaporan" class="futuristic-input"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Tanggal</label>
+                                    <input type="date" id="inputTanggalDaily" class="futuristic-input">
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="generateDailyReport()" class="neon-button w-full">Buat Laporan Harian</button>
+                                </div>
+                            </div>
+
+                            <!-- Weekly Report Form -->
+                            <div id="weeklyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-emerald-400/10 rounded-lg">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <select id="selectKelasWeeklyLaporan" class="futuristic-input"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Tanggal Mulai Minggu</label>
+                                    <input type="date" id="inputTanggalWeekly" class="futuristic-input">
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="generateWeeklyReport()" class="neon-button w-full">Buat Laporan Mingguan</button>
+                                </div>
+                            </div>
+
+                            <!-- Monthly Report Form -->
+                            <div id="monthlyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-purple-400/10 rounded-lg">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <select id="selectKelasMonthlyLaporan" class="futuristic-input"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Bulan/Tahun</label>
+                                    <input type="month" id="inputBulanTahun" class="futuristic-input">
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="generateMonthlyReport()" class="neon-button w-full">Buat Laporan Bulanan</button>
+                                </div>
+                            </div>
+
+                            <!-- Semester Report Form -->
+                            <div id="semesterForm" class="report-form grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-indigo-400/10 rounded-lg">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <select id="selectKelasSemesterLaporan" class="futuristic-input"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Semester</label>
+                                    <select id="selectSemesterLaporan" class="futuristic-input">
+                                        <option value="ganjil">Semester Ganjil (Juli - Desember)</option>
+                                        <option value="genap">Semester Genap (Januari - Juni)</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="generateSemesterReport()" class="neon-button w-full">Buat Laporan Semester</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap gap-4 mt-6 no-print">
+                            <button onclick="cetakLaporanExcel()" class="neon-button">Ekspor ke Excel</button>
+                            <button onclick="window.print()" class="neon-button">Cetak PDF</button>
+                        </div>
+                    </div>
+
+                    <!-- Report Display Area -->
+                    <div class="futuristic-card print-area">
+                        <div id="reportHeader" class="mb-6"></div>
+                        <div id="reportContent"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- RESPONSIVE UI SCRIPT ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // --- CORE APPLICATION SCRIPT ---
+        
+        // Database functions
+        const db = {
+            get: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
+            set: (key, data) => localStorage.setItem(key, JSON.stringify(data))
+        };
+
+        // Initialize particles
+        function createParticles() {
+            const bg = document.querySelector('.animated-bg');
+            if (bg.children.length > 0) return; // Don't create duplicates
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                bg.appendChild(particle);
+            }
+        }
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            
+            loginText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            
+            setTimeout(() => {
+                if (username === 'iyeyy' && password === 'iyeyyatuu') {
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+                    initializeApp();
+                } else {
+                    alert('Kredensial tidak valid!');
+                    loginText.classList.remove('hidden');
+                    loginSpinner.classList.add('hidden');
+                }
+            }, 1500);
+        });
+
+        // Logout functionality
+        function logout() {
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Initialize application
+        function initializeApp() {
+            updateCurrentDate();
+            renderSemua();
+            updateDashboard();
+            setTanggalHariIni();
+            document.getElementById('inputTanggalLihat').value = getTanggalHariIniISO();
+            document.getElementById('inputTanggalDaily').value = getTanggalHariIniISO();
+            document.getElementById('inputTanggalWeekly').value = getTanggalHariIniISO();
+            document.getElementById('inputBulanTahun').value = getCurrentMonthYear();
+            showReportForm();
+        }
+
+        // Update current date
+        function updateCurrentDate() {
+            const now = new Date();
+            const dateElem = document.getElementById('currentDate');
+            if(dateElem) {
+                dateElem.textContent = now.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        // Update dashboard stats
+        function updateDashboard() {
+            const classes = db.get('kelas');
+            const students = db.get('siswa');
+            const attendance = db.get('absensi');
+            const today = getTanggalHariIniISO();
+            const todayAttendance = attendance.filter(a => a.tanggal === today);
+
+            document.getElementById('totalClasses').textContent = classes.length;
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('todayAttendance').textContent = todayAttendance.length > 0 ? 'Tercatat' : 'Tertunda';
+        }
+
+        // Section navigation
+        function showSection(sectionName, navElement) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + 'Section').classList.remove('hidden');
+            
+            // Add active class to clicked nav item
+            if (navElement) {
+                 // Find the parent nav-item if a child was clicked
+                const navItem = navElement.closest('.nav-item') || document.querySelector(`.nav-item[onclick*="'${sectionName}'"]`);
+                if (navItem) {
+                    navItem.classList.add('active');
+                }
+            }
+            
+            // Update section title
+            const titles = {
+                dashboard: 'Dasbor',
+                classes: 'Kelola Kelas',
+                students: 'Kelola Siswa',
+                attendance: 'Ambil Absensi',
+                view: 'Lihat Absensi',
+                reports: 'Buat Laporan'
+            };
+            document.getElementById('sectionTitle').textContent = titles[sectionName];
+            
+            // Update dropdowns when needed
+            if (['students', 'attendance', 'view', 'reports'].includes(sectionName)) {
+                updatePilihanKelas();
+            }
+            if (sectionName === 'attendance') {
+                tampilkanSiswaUntukAbsensi();
+            }
+            
+            // On mobile, hide sidebar after selection
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+
+        // Render all data
+        function renderSemua() {
+            renderDaftarKelas();
+            renderDaftarSiswa();
+            updatePilihanKelas();
+            updateDashboard();
+        }
+
+        // Class management functions
+        function tambahKelas() {
+            const input = document.getElementById('inputKelas');
+            const nama = input.value.trim();
+            if (nama) {
+                const data = db.get('kelas');
+                if (data.includes(nama)) { 
+                    alert('Nama kelas sudah ada!'); 
+                    return; 
+                }
+                data.push(nama);
+                db.set('kelas', data);
+                input.value = '';
+                renderSemua();
+            } else {
+                alert('Nama kelas tidak boleh kosong!');
+            }
+        }
+
+        function renderDaftarKelas() {
+            const data = db.get('kelas');
+            const container = document.getElementById('daftarKelas');
+            if (!data.length) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">Belum ada kelas.</p>';
+                return;
+            }
+            container.innerHTML = data.map(k => `
+                <div class="flex flex-col sm:flex-row justify-between items-center p-4 bg-white/5 rounded-lg border border-cyan-400/20 hover:border-cyan-400/50 transition-colors gap-2">
+                    <span class="text-white font-medium">${k}</span>
+                    <div class="space-x-2 flex-shrink-0">
+                        <button onclick="editKelas('${k}')" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm transition-colors">Ubah</button>
+                        <button onclick="hapusKelas('${k}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editKelas(namaLama) {
+            const namaBaru = prompt(`Ubah nama kelas "${namaLama}":`, namaLama);
+            if (namaBaru && namaBaru.trim() !== namaLama) {
+                const namaBaruTrim = namaBaru.trim();
+                let kelas = db.get('kelas');
+                let siswa = db.get('siswa');
+                let absensi = db.get('absensi');
+
+                if (kelas.includes(namaBaruTrim)) { 
+                    alert('Nama kelas sudah ada!'); 
+                    return; 
+                }
+
+                kelas = kelas.map(k => (k === namaLama ? namaBaruTrim : k));
+                siswa = siswa.map(s => { if (s.kelas === namaLama) s.kelas = namaBaruTrim; return s; });
+                absensi = absensi.map(a => { if (a.kelas === namaLama) a.kelas = namaBaruTrim; return a; });
+
+                db.set('kelas', kelas);
+                db.set('siswa', siswa);
+                db.set('absensi', absensi);
+                renderSemua();
+            }
+        }
+
+        function hapusKelas(namaKelas) {
+            if (confirm(`Apakah Anda yakin ingin menghapus kelas "${namaKelas}"? Ini akan menghapus semua siswa dan catatan absensi di dalamnya.`)) {
+                db.set('kelas', db.get('kelas').filter(k => k !== namaKelas));
+                db.set('siswa', db.get('siswa').filter(s => s.kelas !== namaKelas));
+                db.set('absensi', db.get('absensi').filter(a => a.kelas !== namaKelas));
+                renderSemua();
+            }
+        }
+
+        // Student management functions
+        function tambahSiswa() {
+            const kelas = document.getElementById('selectKelasSiswa').value;
+            const input = document.getElementById('inputSiswa');
+            const nama = input.value.trim();
+
+            if (nama && kelas && !kelas.startsWith('Buat kelas')) {
+                const data = db.get('siswa');
+                if (data.some(s => s.nama === nama && s.kelas === kelas)) { 
+                    alert('Siswa sudah ada di kelas ini.'); 
+                    return; 
+                }
+                data.push({ kelas, nama });
+                db.set('siswa', data);
+                input.value = '';
+                renderDaftarSiswa();
+                updateDashboard();
+            } else {
+                alert('Silakan pilih kelas dan masukkan nama siswa.');
+            }
+        }
+
+        function renderDaftarSiswa() {
+            const data = db.get('siswa');
+            const container = document.getElementById('daftarSiswa');
+            if (!data.length) { 
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">Belum ada siswa.</p>'; 
+                return; 
+            }
+
+            const grouped = data.reduce((acc, siswa) => { 
+                (acc[siswa.kelas] = acc[siswa.kelas] || []).push(siswa); 
+                return acc; 
+            }, {});
+
+            container.innerHTML = Object.entries(grouped).map(([kelas, siswas]) => `
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-cyan-400 mb-3">${kelas}</h4>
+                    <div class="space-y-2">
+                        ${siswas.map(s => `
+                            <div class="flex flex-col sm:flex-row justify-between items-center p-3 bg-white/5 rounded-lg border border-cyan-400/20 hover:border-cyan-400/50 transition-colors gap-2">
+                                <span class="text-white">${s.nama}</span>
+                                <div class="space-x-2 flex-shrink-0">
+                                    <button onclick="editSiswa('${s.nama}', '${s.kelas}')" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm transition-colors">Ubah</button>
+                                    <button onclick="hapusSiswa('${s.nama}', '${s.kelas}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors">Hapus</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editSiswa(namaLama, kelas) {
+            const namaBaru = prompt(`Ubah nama siswa "${namaLama}" di kelas ${kelas}:`, namaLama);
+            if (namaBaru && namaBaru.trim() !== namaLama) {
+                const namaBaruTrim = namaBaru.trim();
+                let siswa = db.get('siswa');
+                let absensi = db.get('absensi');
+
+                if (siswa.some(s => s.nama === namaBaruTrim && s.kelas === kelas)) { 
+                    alert('Nama siswa sudah ada di kelas ini!'); 
+                    return; 
+                }
+                
+                siswa = siswa.map(s => { if (s.nama === namaLama && s.kelas === kelas) s.nama = namaBaruTrim; return s; });
+                absensi = absensi.map(a => { if (a.nama === namaLama && a.kelas === kelas) a.nama = namaBaruTrim; return a; });
+
+                db.set('siswa', siswa);
+                db.set('absensi', absensi);
+                renderSemua();
+            }
+        }
+
+        function hapusSiswa(namaSiswa, kelas) {
+            if (confirm(`Apakah Anda yakin ingin menghapus siswa "${namaSiswa}"? Ini akan menghapus riwayat absensinya.`)) {
+                db.set('siswa', db.get('siswa').filter(s => !(s.nama === namaSiswa && s.kelas === kelas)));
+                db.set('absensi', db.get('absensi').filter(a => !(a.nama === namaSiswa && a.kelas === kelas)));
+                renderSemua();
+            }
+        }
+
+        // Dropdown and date management
+        function updatePilihanKelas() {
+            const data = db.get('kelas');
+            const selects = ['selectKelasSiswa', 'selectKelasIsiAbsensi', 'selectKelasLihat', 
+                            'selectKelasDailyLaporan', 'selectKelasWeeklyLaporan', 'selectKelasMonthlyLaporan', 'selectKelasSemesterLaporan'];
+            
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '';
+                    if (data.length === 0) {
+                        select.innerHTML = '<option>Buat kelas terlebih dahulu</option>';
+                    } else {
+                        select.innerHTML = data.map(k => `<option value="${k}" ${k === currentValue ? 'selected' : ''}>${k}</option>`).join('');
+                    }
+                }
+            });
+        }
+
+        function setTanggalHariIni() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('tanggalHariIni').innerText = new Date().toLocaleDateString('id-ID', options);
+        }
+
+        function getTanggalHariIniISO() { 
+            return new Date().toISOString().split('T')[0]; 
+        }
+
+        function getCurrentMonthYear() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        // Attendance management
+        function tampilkanSiswaUntukAbsensi() {
+            const kelas = document.getElementById('selectKelasIsiAbsensi').value;
+            const siswa = db.get('siswa').filter(s => s.kelas === kelas);
+            const tbody = document.getElementById('tabelAbsensiSiswa');
+            tbody.innerHTML = '';
+            
+            if (!kelas || kelas.startsWith('Buat kelas')) return;
+
+            siswa.forEach(s => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-cyan-400/5 transition-colors">
+                        <td class="py-3 px-4">${s.nama}</td>
+                        <td class="py-3 px-4">
+                            <select class="status-select futuristic-input" data-nama-siswa="${s.nama}">
+                                <option value="Hadir">Hadir</option>
+                                <option value="Sakit">Sakit</option>
+                                <option value="Izin">Izin</option>
+                                <option value="Alfa">Alfa</option>
+                            </select>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function simpanAbsensi() {
+            const kelas = document.getElementById('selectKelasIsiAbsensi').value;
+            const tanggal = getTanggalHariIniISO();
+            const absensi = db.get('absensi');
+            const selects = document.querySelectorAll('#tabelAbsensiSiswa .status-select');
+            
+            if (selects.length === 0) { 
+                alert('Tidak ada siswa untuk dicatat absensinya.'); 
+                return; 
+            }
+
+            const absensiLain = absensi.filter(a => !(a.tanggal === tanggal && a.kelas === kelas));
+            const absensiBaru = Array.from(selects).map(s => ({ 
+                tanggal, 
+                kelas, 
+                nama: s.dataset.namaSiswa, 
+                status: s.value 
+            }));
+
+            db.set('absensi', [...absensiLain, ...absensiBaru]);
+            alert(`Absensi untuk kelas ${kelas} pada tanggal ${tanggal} berhasil disimpan!`);
+            updateDashboard();
+        }
+
+        // View attendance management
+        function tampilkanAbsensiTersimpan() {
+            const kelas = document.getElementById('selectKelasLihat').value;
+            const tanggal = document.getElementById('inputTanggalLihat').value;
+            const tbody = document.getElementById('tabelLihatAbsensi');
+
+            if (!tanggal) { 
+                alert("Silakan pilih tanggal terlebih dahulu."); 
+                return; 
+            }
+            if (!kelas || kelas.startsWith('Buat kelas')) { 
+                alert("Silakan pilih kelas terlebih dahulu."); 
+                return; 
+            }
+            
+            const absensi = db.get('absensi');
+            const dataTampil = absensi.filter(a => a.kelas === kelas && a.tanggal === tanggal);
+
+            if(dataTampil.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-400 py-8">Tidak ada data absensi untuk kelas dan tanggal ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = dataTampil.map(data => `
+                <tr class="hover:bg-cyan-400/5 transition-colors">
+                    <td class="py-3 px-4 font-medium">${data.nama}</td>
+                    <td class="py-3 px-4">${data.status}</td>
+                    <td class="py-3 px-4">
+                        <button onclick="editAbsensi('${data.nama}', '${data.kelas}', '${data.tanggal}')" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm transition-colors">Ubah</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editAbsensi(nama, kelas, tanggal) {
+            const absensi = db.get('absensi');
+            const absensiTarget = absensi.find(a => a.nama === nama && a.kelas === kelas && a.tanggal === tanggal);
+            
+            if (!absensiTarget) { 
+                alert('Data absensi tidak ditemukan!'); 
+                return; 
+            }
+            
+            const statusLama = absensiTarget.status;
+            const statusList = ['Hadir', 'Sakit', 'Izin', 'Alfa'];
+            const statusBaru = prompt(`Ubah status absensi untuk "${nama}" pada ${tanggal}.\nStatus saat ini: ${statusLama}\n\nMasukkan status baru (Hadir, Sakit, Izin, Alfa):`, statusLama);
+
+            if (statusBaru && statusList.map(s=>s.toLowerCase()).includes(statusBaru.toLowerCase())) {
+                const statusBaruFormatted = statusBaru.charAt(0).toUpperCase() + statusBaru.slice(1).toLowerCase();
+                absensiTarget.status = statusBaruFormatted;
+                db.set('absensi', absensi);
+                alert(`Status absensi untuk ${nama} berhasil diubah menjadi ${statusBaruFormatted}.`);
+                tampilkanAbsensiTersimpan();
+            } else if (statusBaru !== null) {
+                alert('Status tidak valid! Silakan masukkan: Hadir, Sakit, Izin, atau Alfa.');
+            }
+        }
+
+        // Report management functions
+        function showReportForm() {
+            const reportType = document.querySelector('input[name="reportType"]:checked').value;
+            document.querySelectorAll('.report-form').forEach(form => form.classList.add('hidden'));
+            document.getElementById(reportType + 'Form').classList.remove('hidden');
+        }
+
+        // Daily Report
+        function generateDailyReport() {
+            const kelas = document.getElementById('selectKelasDailyLaporan').value;
+            const tanggal = document.getElementById('inputTanggalDaily').value;
+            
+            if (!kelas || kelas.startsWith('Buat kelas')) { alert("Pilih kelas yang valid."); return; }
+            if (!tanggal) { alert("Pilih tanggal yang valid."); return; }
+
+            const absensi = db.get('absensi');
+            const siswaDiKelas = db.get('siswa').filter(s => s.kelas === kelas);
+            const absensiHarian = absensi.filter(a => a.kelas === kelas && a.tanggal === tanggal);
+            
+            const tanggalFormatted = new Date(tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const header = `<div class="text-center mb-6"><h3 class="orbitron text-2xl font-bold text-cyan-400 mb-2">LAPORAN ABSENSI HARIAN</h3><p class="text-lg text-white">Kelas: ${kelas}</p><p class="text-lg text-white">Tanggal: ${tanggalFormatted}</p><div class="w-24 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 mx-auto mt-4 rounded"></div></div>`;
+            
+            let tableContent = `<div class="futuristic-table-wrapper"><table class="print-table futuristic-table"><thead><tr><th class="text-left">No</th><th class="text-left">Nama Siswa</th><th class="text-center">Status Kehadiran</th></tr></thead><tbody>`;
+            
+            siswaDiKelas.forEach((siswa, index) => {
+                const absensiSiswa = absensiHarian.find(a => a.nama === siswa.nama);
+                const status = absensiSiswa ? absensiSiswa.status : 'Tidak tercatat';
+                tableContent += `<tr><td>${index + 1}</td><td>${siswa.nama}</td><td class="text-center">${status}</td></tr>`;
+            });
+            
+            tableContent += '</tbody></table></div>';
+            
+            const summary = createSummary(absensiHarian);
+            
+            document.getElementById('reportHeader').innerHTML = header;
+            document.getElementById('reportContent').innerHTML = tableContent + summary;
+        }
+
+        // Weekly Report
+        function generateWeeklyReport() {
+            const kelas = document.getElementById('selectKelasWeeklyLaporan').value;
+            const startDate = document.getElementById('inputTanggalWeekly').value;
+            
+            if (!kelas || kelas.startsWith('Buat kelas')) { alert("Pilih kelas yang valid."); return; }
+            if (!startDate) { alert("Pilih tanggal mulai minggu yang valid."); return; }
+
+            const absensi = db.get('absensi');
+            const siswaDiKelas = db.get('siswa').filter(s => s.kelas === kelas);
+            
+            const weekDates = [];
+            const start = new Date(startDate + 'T00:00:00');
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(start);
+                date.setDate(start.getDate() + i);
+                weekDates.push(date.toISOString().split('T')[0]);
+            }
+            
+            const endDate = weekDates[6];
+            const startFormatted = new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID');
+            const endFormatted = new Date(endDate + 'T00:00:00').toLocaleDateString('id-ID');
+            
+            const header = `<div class="text-center mb-6"><h3 class="orbitron text-2xl font-bold text-cyan-400 mb-2">LAPORAN ABSENSI MINGGUAN</h3><p class="text-lg text-white">Kelas: ${kelas}</p><p class="text-lg text-white">Periode: ${startFormatted} - ${endFormatted}</p><div class="w-24 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 mx-auto mt-4 rounded"></div></div>`;
+            
+            let tableContent = `<div class="futuristic-table-wrapper"><table class="print-table futuristic-table min-w-[800px]"><thead><tr><th class="text-left">No</th><th class="text-left">Nama Siswa</th>${weekDates.map(date => `<th class="text-center">${new Date(date+'T00:00:00').toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit'})}</th>`).join('')}<th class="text-center">H</th><th class="text-center">S</th><th class="text-center">I</th><th class="text-center">A</th></tr></thead><tbody>`;
+            
+            siswaDiKelas.forEach((siswa, index) => {
+                const weeklyData = { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0 };
+                let dailyStatuses = [];
+                
+                weekDates.forEach(date => {
+                    const absensiSiswa = absensi.find(a => a.nama === siswa.nama && a.kelas === kelas && a.tanggal === date);
+                    const status = absensiSiswa ? absensiSiswa.status.charAt(0) : '-';
+                    dailyStatuses.push(status);
+                    if (absensiSiswa && weeklyData.hasOwnProperty(absensiSiswa.status)) {
+                        weeklyData[absensiSiswa.status]++;
+                    }
+                });
+                
+                tableContent += `<tr><td>${index + 1}</td><td>${siswa.nama}</td>${dailyStatuses.map(status => `<td class="text-center">${status}</td>`).join('')}<td class="text-center">${weeklyData.Hadir}</td><td class="text-center">${weeklyData.Sakit}</td><td class="text-center">${weeklyData.Izin}</td><td class="text-center">${weeklyData.Alfa}</td></tr>`;
+            });
+            
+            tableContent += '</tbody></table></div>';
+            
+            const weeklyAbsensi = absensi.filter(a => a.kelas === kelas && weekDates.includes(a.tanggal));
+            const summary = createSummary(weeklyAbsensi);
+            
+            document.getElementById('reportHeader').innerHTML = header;
+            document.getElementById('reportContent').innerHTML = tableContent + summary;
+        }
+
+        // Monthly Report
+        function generateMonthlyReport() {
+            const kelas = document.getElementById('selectKelasMonthlyLaporan').value;
+            const monthYear = document.getElementById('inputBulanTahun').value;
+            
+            if (!kelas || kelas.startsWith('Buat kelas')) { alert("Pilih kelas yang valid."); return; }
+            if (!monthYear) { alert("Pilih bulan/tahun yang valid."); return; }
+
+            const [year, month] = monthYear.split('-');
+            const monthName = new Date(year, month - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            
+            const absensi = db.get('absensi');
+            const siswaDiKelas = db.get('siswa').filter(s => s.kelas === kelas);
+            
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const monthDates = Array.from({length: daysInMonth}, (_, i) => `${year}-${String(month).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`);
+            
+            const header = `<div class="text-center mb-6"><h3 class="orbitron text-2xl font-bold text-cyan-400 mb-2">LAPORAN ABSENSI BULANAN</h3><p class="text-lg text-white">Kelas: ${kelas}</p><p class="text-lg text-white">Bulan: ${monthName}</p><div class="w-24 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 mx-auto mt-4 rounded"></div></div>`;
+            
+            let tableContent = `<div class="futuristic-table-wrapper"><table class="print-table futuristic-table min-w-[1200px]"><thead><tr><th class="text-left">No</th><th class="text-left">Nama Siswa</th>`;
+            for (let day = 1; day <= daysInMonth; day++) { tableContent += `<th class="text-center">${day}</th>`; }
+            tableContent += `<th class="text-center">H</th><th class="text-center">S</th><th class="text-center">I</th><th class="text-center">A</th></tr></thead><tbody>`;
+            
+            siswaDiKelas.forEach((siswa, index) => {
+                const monthlyData = { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0 };
+                let dailyStatuses = [];
+                
+                monthDates.forEach(date => {
+                    const absensiSiswa = absensi.find(a => a.nama === siswa.nama && a.kelas === kelas && a.tanggal === date);
+                    const status = absensiSiswa ? absensiSiswa.status.charAt(0) : '-';
+                    dailyStatuses.push(status);
+                    if (absensiSiswa && monthlyData.hasOwnProperty(absensiSiswa.status)) {
+                        monthlyData[absensiSiswa.status]++;
+                    }
+                });
+                
+                tableContent += `<tr><td>${index + 1}</td><td>${siswa.nama}</td>${dailyStatuses.map(status => `<td class="text-center">${status}</td>`).join('')}<td class="text-center">${monthlyData.Hadir}</td><td class="text-center">${monthlyData.Sakit}</td><td class="text-center">${monthlyData.Izin}</td><td class="text-center">${monthlyData.Alfa}</td></tr>`;
+            });
+            
+            tableContent += '</tbody></table></div>';
+            
+            const monthlyAbsensi = absensi.filter(a => a.kelas === kelas && a.tanggal.startsWith(monthYear));
+            const summary = createSummary(monthlyAbsensi);
+            
+            document.getElementById('reportHeader').innerHTML = header;
+            document.getElementById('reportContent').innerHTML = tableContent + summary;
+        }
+
+        // Semester Report
+        function generateSemesterReport() {
+            const kelas = document.getElementById('selectKelasSemesterLaporan').value;
+            const semester = document.getElementById('selectSemesterLaporan').value;
+            
+            if (!kelas || kelas.startsWith('Buat kelas')) { alert("Pilih kelas yang valid."); return; }
+
+            const year = new Date().getFullYear();
+            const semesterMonths = semester === 'ganjil' ? [6, 7, 8, 9, 10, 11] : [0, 1, 2, 3, 4, 5]; // Juli-Des : Jan-Juni
+            const semesterName = semester === 'ganjil' ? 'Semester Ganjil (Juli - Desember)' : 'Semester Genap (Januari - Juni)';
+            
+            const absensi = db.get('absensi');
+            const siswaDiKelas = db.get('siswa').filter(s => s.kelas === kelas);
+            
+            const header = `<div class="text-center mb-6"><h3 class="orbitron text-2xl font-bold text-cyan-400 mb-2">LAPORAN ABSENSI SEMESTER</h3><p class="text-lg text-white">Kelas: ${kelas}</p><p class="text-lg text-white">Semester: ${semesterName} ${year}</p><div class="w-24 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 mx-auto mt-4 rounded"></div></div>`;
+            
+            let tableContent = `<div class="mb-6"><h4 class="text-lg font-semibold mb-4 text-emerald-400">Total Ringkasan Semester</h4><div class="futuristic-table-wrapper"><table class="print-table futuristic-table min-w-[800px]"><thead><tr><th class="text-left">No</th><th class="text-left">Nama Siswa</th><th class="text-center">Hadir</th><th class="text-center">Sakit</th><th class="text-center">Izin</th><th class="text-center">Alfa</th><th class="text-center">Total Hari</th></tr></thead><tbody>`;
+            
+            siswaDiKelas.forEach((siswa, index) => {
+                const semesterData = { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0 };
+                const absensiSiswa = absensi.filter(a => a.nama === siswa.nama && a.kelas === kelas && new Date(a.tanggal).getFullYear() === year && semesterMonths.includes(new Date(a.tanggal).getMonth()));
+                
+                absensiSiswa.forEach(a => { if (semesterData.hasOwnProperty(a.status)) semesterData[a.status]++; });
+                
+                const totalHari = semesterData.Hadir + semesterData.Sakit + semesterData.Izin + semesterData.Alfa;
+                
+                tableContent += `<tr><td>${index + 1}</td><td>${siswa.nama}</td><td class="text-center">${semesterData.Hadir}</td><td class="text-center">${semesterData.Sakit}</td><td class="text-center">${semesterData.Izin}</td><td class="text-center">${semesterData.Alfa}</td><td class="text-center">${totalHari}</td></tr>`;
+            });
+            
+            tableContent += '</tbody></table></div></div>';
+            
+            const semesterAbsensi = absensi.filter(a => a.kelas === kelas && new Date(a.tanggal).getFullYear() === year && semesterMonths.includes(new Date(a.tanggal).getMonth()));
+            const summary = createSummary(semesterAbsensi);
+            
+            document.getElementById('reportHeader').innerHTML = header;
+            document.getElementById('reportContent').innerHTML = tableContent + summary;
+        }
+
+        // Helper function to create summary
+        function createSummary(absensiData) {
+            const summary = { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0 };
+            absensiData.forEach(a => { if (summary.hasOwnProperty(a.status)) summary[a.status]++; });
+            const total = summary.Hadir + summary.Sakit + summary.Izin + summary.Alfa;
+            
+            return `<div class="mt-6 p-6 bg-gradient-to-r from-cyan-400/10 to-purple-500/10 rounded-lg border border-cyan-400/30"><h4 class="text-lg font-semibold mb-4 text-cyan-400 orbitron">RINGKASAN KEHADIRAN</h4><div class="grid grid-cols-2 sm:grid-cols-5 gap-4"><div class="text-center p-4 bg-green-500/20 rounded-lg border border-green-500/30"><div class="text-3xl font-bold text-green-400 orbitron">${summary.Hadir}</div><div class="text-sm text-gray-300">Hadir</div></div><div class="text-center p-4 bg-yellow-500/20 rounded-lg border border-yellow-500/30"><div class="text-3xl font-bold text-yellow-400 orbitron">${summary.Sakit}</div><div class="text-sm text-gray-300">Sakit</div></div><div class="text-center p-4 bg-blue-500/20 rounded-lg border border-blue-500/30"><div class="text-3xl font-bold text-blue-400 orbitron">${summary.Izin}</div><div class="text-sm text-gray-300">Izin</div></div><div class="text-center p-4 bg-red-500/20 rounded-lg border border-red-500/30"><div class="text-3xl font-bold text-red-400 orbitron">${summary.Alfa}</div><div class="text-sm text-gray-300">Alfa</div></div><div class="col-span-2 sm:col-span-1 text-center p-4 bg-gray-500/20 rounded-lg border border-gray-500/30"><div class="text-3xl font-bold text-gray-300 orbitron">${total}</div><div class="text-sm text-gray-300">Total</div></div></div></div>`;
+        }
+
+        /**
+         * MODIFIED FUNCTION FOR ANDROID COMPATIBILITY
+         * Exports the report table to an Excel file.
+         * It first tries to use the Web Share API for a native app-like sharing experience.
+         * If the Web Share API is not available or fails, it falls back to the standard file download method.
+         */
+        function cetakLaporanExcel() {
+            const reportContent = document.getElementById('reportContent');
+            if (!reportContent.innerHTML.trim()) {
+                alert('Tidak ada data laporan untuk diekspor.');
+                return;
+            }
+            const table = reportContent.querySelector('table');
+            if (!table) {
+                alert('Tidak ada tabel di dalam laporan untuk diekspor.');
+                return;
+            }
+
+            // --- Get report metadata for filename ---
+            const reportType = document.querySelector('input[name="reportType"]:checked').value;
+            const kelasSelect = document.querySelector(`#selectKelas${reportType.charAt(0).toUpperCase() + reportType.slice(1)}Laporan`);
+            const kelas = kelasSelect ? kelasSelect.value : 'laporan';
+            const timestamp = getTanggalHariIniISO();
+            const fileName = `Laporan_Absensi_${reportType}_${kelas}_${timestamp}.xlsx`;
+
+            // --- Create Excel workbook ---
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Laporan Absensi" });
+
+            try {
+                // --- Convert workbook to a file object for sharing ---
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+                const buf = new ArrayBuffer(wbout.length);
+                const view = new Uint8Array(buf);
+                for (let i = 0; i < wbout.length; i++) {
+                    view[i] = wbout.charCodeAt(i) & 0xFF;
+                }
+                const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const file = new File([blob], fileName, { type: blob.type });
+
+                // --- Attempt to use Web Share API ---
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        files: [file],
+                        title: 'Laporan Absensi',
+                        text: `Laporan absensi untuk kelas ${kelas}`
+                    })
+                    .then(() => console.log('Laporan berhasil dibagikan.'))
+                    .catch((error) => {
+                        console.log('Gagal membagikan, mencoba unduh manual:', error);
+                        // Fallback to standard download if sharing is cancelled or fails
+                        XLSX.writeFile(wb, fileName);
+                    });
+                } else {
+                    // --- Fallback for browsers/WebViews without Web Share API ---
+                    console.log('Web Share API tidak didukung, menggunakan metode unduh standar.');
+                    XLSX.writeFile(wb, fileName);
+                }
+            } catch (error) {
+                console.error('Terjadi kesalahan saat membuat file Excel untuk dibagikan:', error);
+                alert('Gagal membuat file Excel. Menggunakan metode unduh standar.');
+                XLSX.writeFile(wb, fileName);
+            }
+        }
+
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            updateCurrentDate();
+            setInterval(updateCurrentDate, 60000);
+        });
+    </script>
+</body>
+</html>
