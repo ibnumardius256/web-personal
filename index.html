@@ -529,21 +529,24 @@
          * @returns {Promise<any>} - The response from the server.
          */
        async function postData(body) {
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const result = await response.json();
-                if (result.status === 'error') throw new Error(result.message);
-                return result;
-            } catch (error) {
-                console.error('Error posting data:', error);
-                alert(`Gagal mengirim data: ${error.message}. Pastikan URL SCRIPT_URL sudah benar.`);
-                return null;
-            }
+    try {
+        const formData = new FormData();
+        for (const key in body) {
+            formData.append(key, typeof body[key] === 'object' ? JSON.stringify(body[key]) : body[key]);
         }
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        if (result.status === 'error') throw new Error(result.message);
+        return result;
+    } catch (error) {
+        console.error('Error posting data:', error);
+        alert(`Gagal mengirim data: ${error.message}. Pastikan URL SCRIPT_URL sudah benar.`);
+        return null;
+    }
+}
 
 
         // Initialize particles
@@ -574,7 +577,7 @@
             
             setTimeout(() => {
                 if (username === 'iyeyy' && password === 'iyeyyatuu') {
-                    if (SCRIPT_URL === "MASUKKAN_URL_DEPLOYMENT_ANDA_DI_SINI") {
+                    if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwMuO8wzsutE2OnKA_cdfzPr3bl6g9MuwCOlR4BevJThT_auXZn1Rw1FzzVIT9x1jJZ/exec") {
                         alert("Login berhasil, tetapi Anda belum memasukkan URL Google Apps Script. Silakan ikuti petunjuk untuk menghubungkan ke spreadsheet.");
                     }
                     document.getElementById('loginScreen').classList.add('hidden');
