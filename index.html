@@ -86,6 +86,21 @@
             .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: left; color: #000 !important; }
             .print-table th { background-color: #f0f0f0; font-weight: bold; }
         }
+        .loading-spinner-animated {
+    width: 64px;
+    height: 64px;
+    border: 6px solid rgba(0,212,255,0.2);
+    border-top: 6px solid #00d4ff;
+    border-right: 6px solid #7c3aed;
+    border-radius: 50%;
+    animation: spin 1s linear infinite, glow 2s ease-in-out infinite;
+    box-shadow: 0 0 30px #00d4ff, 0 0 60px #7c3aed;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes glow {
+    0%,100% { box-shadow: 0 0 30px #00d4ff, 0 0 60px #7c3aed; }
+    50% { box-shadow: 0 0 60px #7c3aed, 0 0 90px #00d4ff; }
+}
     </style>
 </head>
 <body>
@@ -474,6 +489,14 @@
         </main>
     </div>
 
+    <!-- Elegan Loading Overlay -->
+<div id="globalLoading" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(10,10,30,0.7); backdrop-filter:blur(8px);">
+    <div style="height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+        <div class="loading-spinner-animated"></div>
+        <div class="mt-6 text-cyan-400 orbitron text-xl font-bold animate-pulse">Memproses Data...</div>
+    </div>
+</div>
+
     <script>
         // --- RESPONSIVE UI SCRIPT ---
         function toggleSidebar() {
@@ -505,6 +528,7 @@
          * @returns {Promise<any>} - The data from the server.
          */
         async function fetchData(action, params = {}) {
+            showGlobalLoading();
             const url = new URL(SCRIPT_URL);
             url.searchParams.append('action', action);
             for (const key in params) {
@@ -520,6 +544,8 @@
                 console.error(`Error fetching ${action}:`, error);
                 alert(`Gagal mengambil data: ${error.message}. Pastikan URL SCRIPT_URL sudah benar dan server terhubung.`);
                 return null;
+            } finally {
+                hideGlobalLoading();
             }
         }
 
@@ -529,6 +555,7 @@
          * @returns {Promise<any>} - The response from the server.
          */
        async function postData(body) {
+    showGlobalLoading();
     try {
         const formData = new FormData();
         for (const key in body) {
@@ -545,6 +572,8 @@
         console.error('Error posting data:', error);
         alert(`Gagal mengirim data: ${error.message}. Pastikan URL SCRIPT_URL sudah benar.`);
         return null;
+    } finally {
+        hideGlobalLoading();
     }
 }
 
@@ -577,7 +606,7 @@
             
             setTimeout(() => {
                 if (username === 'iyeyy' && password === 'iyeyyatuu') {
-                    if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwMuO8wzsutE2OnKA_cdfzPr3bl6g9MuwCOlR4BevJThT_auXZn1Rw1FzzVIT9x1jJZ/exec") {
+                    if (SCRIPT_URL === "PASTE YOUR SCRIPT URL HERE") {
                         alert("Login berhasil, tetapi Anda belum memasukkan URL Google Apps Script. Silakan ikuti petunjuk untuk menghubungkan ke spreadsheet.");
                     }
                     document.getElementById('loginScreen').classList.add('hidden');
@@ -1208,6 +1237,14 @@
                 `;
             }
         }
+
+        function showGlobalLoading() {
+    document.getElementById('globalLoading').style.display = 'block';
+}
+function hideGlobalLoading() {
+    document.getElementById('globalLoading').style.display = 'none';
+}
+
 
         document.addEventListener('DOMContentLoaded', function() {
             createParticles();
