@@ -3,134 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Absensi BIIZ </title>
+    <title>Sistem Absensi BIIZ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0a0a0a;
-            --secondary: #1a1a2e;
-            --accent-cyan: #00d4ff;
-            --accent-purple: #7c3aed;
-            --accent-emerald: #10b981;
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
+            --bg-primary: #fdf6f8; /* Soft pinkish white */
+            --bg-secondary: #ffffff;
+            --accent-primary: #eab8f5; /* Soft lavender */
+            --accent-secondary: #f7c5cc; /* Soft coral pink */
+            --accent-gold: #d4af37; /* Gold */
+            --text-primary: #333333; /* Dark gray for readability */
+            --text-secondary: #777777;
+            --border-color: rgba(0, 0, 0, 0.08);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-primary);
             color: var(--text-primary);
             overflow-x: hidden;
             min-height: 100vh;
         }
-        .orbitron { font-family: 'Orbitron', monospace; }
-        .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
-        .particle { position: absolute; width: 2px; height: 2px; background: var(--accent-cyan); border-radius: 50%; animation: float 6s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.5; } 50% { transform: translateY(-20px) rotate(180deg); opacity: 1; } }
-        .grid-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px); background-size: 50px 50px; z-index: -1; animation: gridMove 20s linear infinite; }
-        @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
-        .glass-strong { background: rgba(26, 26, 46, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 20px; }
-        .neon-text { text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan), 0 0 30px var(--accent-cyan); }
-        .neon-button { background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple)); border: none; color: white; padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .neon-button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4); }
-        .neon-button:before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); transition: left 0.5s; }
-        .neon-button:hover:before { left: 100%; }
-        .futuristic-input { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 12px 16px; color: white; transition: all 0.3s ease; width: 100%; }
-        .futuristic-input:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 15px rgba(0, 212, 255, 0.3); background: rgba(255, 255, 255, 0.15); }
-        .futuristic-input::placeholder { color: var(--text-secondary); }
+        .heading-font { font-family: 'Playfair Display', serif; }
+        .animated-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; background: linear-gradient(135deg, var(--bg-primary) 0%, #fdeef2 100%); }
+        .particle {
+            position: absolute;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: float 20s ease-in-out infinite;
+            opacity: 0;
+        }
+        @keyframes float { 
+            0% { transform: translateY(100vh) scale(0); opacity: 0; } 
+            50% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; } 
+        }
+        .glass-strong { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+        .accent-text { color: var(--accent-primary); }
+        .elegant-button { 
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); 
+            border: none; 
+            color: white; 
+            padding: 12px 24px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(234, 184, 245, 0.4);
+        }
+        .elegant-button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 25px rgba(247, 197, 204, 0.5);
+        }
+        .elegant-input { 
+            background: rgba(255, 255, 255, 0.5); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 12px 16px; 
+            color: var(--text-primary); 
+            transition: all 0.3s ease; 
+            width: 100%; 
+        }
+        .elegant-input:focus { 
+            outline: none; 
+            border-color: var(--accent-primary); 
+            box-shadow: 0 0 0 3px rgba(234, 184, 245, 0.3); 
+            background: white; 
+        }
+        .elegant-input::placeholder { color: var(--text-secondary); }
         .simple-select {
-            background-color: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(71, 85, 105, 1);
-            color: white;
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
             padding: 0.75rem;
-            border-radius: 0.5rem;
+            border-radius: 12px;
             width: 100%;
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 1.2em 1.2em;
         }
         .simple-select:focus {
             outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(234, 184, 245, 0.3);
         }
-        .nav-item { padding: 12px 20px; margin: 4px 0; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; border: 1px solid transparent; }
-        .nav-item:hover { background: rgba(0, 212, 255, 0.1); border-color: rgba(0, 212, 255, 0.3); transform: translateX(5px); }
-        .nav-item.active { background: linear-gradient(45deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2)); border-color: var(--accent-cyan); }
-        .futuristic-card { background: rgba(26, 26, 46, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
-        .futuristic-card:hover { border-color: var(--accent-cyan); box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2); transform: translateY(-4px); }
-        .futuristic-table-wrapper { background: rgba(26, 26, 46, 0.4); backdrop-filter: blur(10px); border-radius: 12px; overflow-x: auto; border: 1px solid rgba(0, 212, 255, 0.2); }
-        .futuristic-table { width: 100%; border-collapse: collapse; }
-        .futuristic-table th { background: rgba(0, 212, 255, 0.1); padding: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; white-space: nowrap; }
-        .futuristic-table td { padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .futuristic-table tr:hover { background: rgba(0, 212, 255, 0.05); }
+        .nav-item { padding: 12px 20px; margin: 4px 0; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; border-left: 4px solid transparent; }
+        .nav-item:hover { background: rgba(0, 0, 0, 0.03); border-left-color: var(--accent-secondary); transform: translateX(5px); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(234, 184, 245, 0.2), transparent); border-left-color: var(--accent-primary); font-weight: 600; color: var(--text-primary); }
+        .elegant-card { 
+            background: var(--bg-secondary); 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            padding: 24px; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .elegant-card:hover { 
+            border-color: rgba(234, 184, 245, 0.5); 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.07); 
+            transform: translateY(-4px); 
+        }
+        .elegant-table-wrapper { background: white; border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); }
+        .elegant-table { width: 100%; border-collapse: collapse; }
+        .elegant-table th { background: linear-gradient(45deg, rgba(234, 184, 245, 0.1), rgba(247, 197, 204, 0.1)); padding: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; white-space: nowrap; color: var(--text-primary); }
+        .elegant-table td { padding: 16px; border-bottom: 1px solid var(--border-color); }
+        .elegant-table tr:last-child td { border-bottom: none; }
+        .elegant-table tr:hover { background: rgba(234, 184, 245, 0.05); }
         .fade-in { animation: fadeIn 0.6s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(0, 212, 255, 0.3); border-top: 3px solid var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(234, 184, 245, 0.3); border-top: 3px solid var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
-        ::-webkit-scrollbar-thumb { background: var(--accent-cyan); border-radius: 3px; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-secondary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
         @media print {
             body * { visibility: hidden; }
             .print-area, .print-area * { visibility: visible; }
             .print-area { position: absolute; left: 0; top: 0; width: 100%; }
             .no-print { display: none !important; }
             .print-table { width: 100%; border-collapse: collapse; }
-            .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: left; color: #000 !important; }
+            .print-table th, .print-table td { border: 1px solid #ccc; padding: 8px; text-align: left; color: #000 !important; }
             .print-table th { background-color: #f0f0f0; font-weight: bold; }
         }
         .loading-spinner-animated {
-    width: 64px;
-    height: 64px;
-    border: 6px solid rgba(0,212,255,0.2);
-    border-top: 6px solid #00d4ff;
-    border-right: 6px solid #7c3aed;
-    border-radius: 50%;
-    animation: spin 1s linear infinite, glow 2s ease-in-out infinite;
-    box-shadow: 0 0 30px #00d4ff, 0 0 60px #7c3aed;
-}
-@keyframes spin { 100% { transform: rotate(360deg); } }
-@keyframes glow {
-    0%,100% { box-shadow: 0 0 30px #00d4ff, 0 0 60px #7c3aed; }
-    50% { box-shadow: 0 0 60px #7c3aed, 0 0 90px #00d4ff; }
-}
+            width: 64px;
+            height: 64px;
+            border: 6px solid rgba(234, 184, 245, 0.2);
+            border-top: 6px solid var(--accent-primary);
+            border-right: 6px solid var(--accent-secondary);
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
     </style>
 </head>
 <body>
     <!-- Animated Background -->
-    <div class="animated-bg">
-        <div class="grid-overlay"></div>
-    </div>
+    <div class="animated-bg"></div>
 
     <!-- Login Screen -->
-    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50 p-4">
-        <div class="glass-strong p-8 w-full max-w-md mx-auto fade-in">
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center z-50 p-4 bg-gray-100/50">
+        <div class="elegant-card p-8 w-full max-w-md mx-auto fade-in">
             <div class="text-center mb-8">
-                <h1 class="orbitron text-3xl font-bold neon-text mb-2">SISTEM</h1>
-                <h2 class="orbitron text-xl text-cyan-400">ABSENSI</h2>
-                <div class="w-16 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 mx-auto mt-4 rounded"></div>
+                <h1 class="heading-font text-4xl font-bold text-gray-700 mb-2">Sistem Absensi</h1>
+                <h2 class="text-lg text-gray-500">Silakan masuk untuk melanjutkan</h2>
+                <div class="w-16 h-1 bg-gradient-to-r from-accent-primary to-accent-secondary mx-auto mt-4 rounded"></div>
             </div>
             
             <form id="loginForm" class="space-y-6">
                 <div>
-                    <label class="block text-sm font-medium mb-2 text-cyan-400">Nama Pengguna</label>
-                    <input type="text" id="username" class="futuristic-input" placeholder="Masukkan nama pengguna" required>
+                    <label class="block text-sm font-medium mb-2 text-gray-600">Nama Pengguna</label>
+                    <input type="text" id="username" class="elegant-input" placeholder="Masukkan nama pengguna" required>
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium mb-2 text-cyan-400">Kata Sandi</label>
-                    <input type="password" id="password" class="futuristic-input" placeholder="Masukkan kata sandi" required>
+                    <label class="block text-sm font-medium mb-2 text-gray-600">Kata Sandi</label>
+                    <input type="password" id="password" class="elegant-input" placeholder="Masukkan kata sandi" required>
                 </div>
                 
-                <button type="submit" class="neon-button w-full orbitron font-semibold">
-                    <span id="loginText">MASUK SISTEM</span>
+                <button type="submit" class="elegant-button w-full">
+                    <span id="loginText">MASUK</span>
                     <div id="loginSpinner" class="loading-spinner mx-auto hidden"></div>
                 </button>
             </form>
@@ -143,8 +189,8 @@
         <div id="sidebar" class="fixed left-0 top-0 h-full w-64 glass-strong z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="p-6">
                 <div class="text-center mb-8">
-                    <h1 class="orbitron text-xl font-bold neon-text">SISTEM ABSENSI</h1>
-                    <p class="text-cyan-400 text-sm">v2.2 (AI Powered)</p>
+                    <h1 class="heading-font text-2xl font-bold">Absensi BIIZ</h1>
+                    <p class="text-sm" style="color: var(--accent-primary);">v3.0 (Chic Makeover)</p>
                 </div>
                 
                 <nav class="space-y-2">
@@ -169,7 +215,7 @@
                 </nav>
                 
                 <div class="absolute bottom-6 left-6 right-6">
-                    <button onclick="logout()" class="w-full p-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+                    <button onclick="logout()" class="w-full p-3 bg-red-500 hover:bg-red-600 rounded-lg transition-colors text-white font-semibold">
                         🚪 Keluar
                     </button>
                 </div>
@@ -182,26 +228,26 @@
         <!-- Main Content -->
         <main class="md:ml-64 min-h-screen transition-all duration-300 ease-in-out">
             <!-- Header -->
-            <header class="glass-strong p-4 m-4 rounded-2xl">
+            <header class="bg-white p-4 m-4 rounded-2xl shadow-sm">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-4">
                         <!-- Hamburger Menu for Mobile -->
-                        <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10" onclick="toggleSidebar()">
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-100" onclick="toggleSidebar()">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                         </button>
                         <div>
-                            <h2 id="sectionTitle" class="orbitron text-xl md:text-2xl font-bold">Dasbor</h2>
-                            <p class="text-gray-400 text-sm hidden sm:block">Selamat datang di Sistem Absensi BIIZ</p>
-                            <p class="text-gray-400 text-sm hidden sm:block">Semangat kerjanya yaa... :)</p>
+                            <h2 id="sectionTitle" class="heading-font text-2xl md:text-3xl font-bold text-gray-700">Dasbor</h2>
+                            <p class="text-gray-500 text-sm hidden sm:block">Selamat datang kembali di sistem absensi Biiz</p>
+                            <p class="text-gray-500 text-sm hidden sm:block">Semangat bekerja... Semoga hari ini lebih baik 😊 </p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="text-right hidden sm:block">
-                            <p class="text-sm text-gray-400">Tanggal Saat Ini</p>
-                            <p id="currentDate" class="font-semibold"></p>
+                            <p id="currentDate" class="font-semibold text-gray-600"></p>
+                            <p class="text-sm text-gray-400">Semoga harimu menyenangkan</p>
                         </div>
-                        <div class="w-12 h-12 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center">
-                            <span class="text-white font-bold">A</span>
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent-primary to-accent-secondary rounded-full flex items-center justify-center shadow-lg">
+                            <span class="text-white font-bold text-xl">A</span>
                         </div>
                     </div>
                 </div>
@@ -213,50 +259,50 @@
                 <div id="dashboardSection" class="section fade-in">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <!-- Cards here -->
-                        <div class="futuristic-card">
+                        <div class="elegant-card">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-400 text-sm">Total Kelas</p>
-                                    <p id="totalClasses" class="text-2xl font-bold text-cyan-400">0</p>
+                                    <p class="text-gray-500 text-sm">Total Kelas</p>
+                                    <p id="totalClasses" class="text-3xl font-bold" style="color: var(--accent-primary);">0</p>
                                 </div>
-                                <div class="text-3xl">🏫</div>
+                                <div class="text-4xl opacity-50">🏫</div>
                             </div>
                         </div>
-                        <div class="futuristic-card">
+                        <div class="elegant-card">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-400 text-sm">Total Siswa</p>
-                                    <p id="totalStudents" class="text-2xl font-bold text-emerald-400">0</p>
+                                    <p class="text-gray-500 text-sm">Total Siswa</p>
+                                    <p id="totalStudents" class="text-3xl font-bold" style="color: var(--accent-secondary);">0</p>
                                 </div>
-                                <div class="text-3xl">👥</div>
+                                <div class="text-4xl opacity-50">👥</div>
                             </div>
                         </div>
-                        <div class="futuristic-card">
+                        <div class="elegant-card">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-400 text-sm">Absensi Hari Ini</p>
-                                    <p id="todayAttendance" class="text-2xl font-bold text-purple-400">0</p>
+                                    <p class="text-gray-500 text-sm">Absensi Hari Ini</p>
+                                    <p id="todayAttendance" class="text-3xl font-bold" style="color: var(--accent-gold);">0</p>
                                 </div>
-                                <div class="text-3xl">📝</div>
+                                <div class="text-4xl opacity-50">📝</div>
                             </div>
                         </div>
-                        <div class="futuristic-card">
+                        <div class="elegant-card">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-400 text-sm">Status Sistem</p>
-                                    <p id="systemStatusText" class="text-2xl font-bold text-green-400">Daring</p>
+                                    <p class="text-gray-500 text-sm">Status Sistem</p>
+                                    <p id="systemStatusText" class="text-2xl font-bold text-green-500">Daring</p>
                                 </div>
-                                <div class="text-3xl">⚡</div>
+                                <div class="text-3xl text-green-500 opacity-50">⚡</div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="futuristic-card">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Aksi Cepat</h3>
+                    <div class="elegant-card">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Aksi Cepat</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                            <button onclick="showSection('attendance', this)" class="neon-button">Ambil Absensi</button>
-                            <button onclick="showSection('students', this)" class="neon-button">Tambah Siswa</button>
-                            <button onclick="showSection('reports', this)" class="neon-button">Buat Laporan</button>
+                            <button onclick="showSection('attendance', this)" class="elegant-button">Ambil Absensi</button>
+                            <button onclick="showSection('students', this)" class="elegant-button">Tambah Siswa</button>
+                            <button onclick="showSection('reports', this)" class="elegant-button">Buat Laporan</button>
                         </div>
                     </div>
                 </div>
@@ -264,63 +310,63 @@
 
                 <!-- Classes Section -->
                 <div id="classesSection" class="section hidden">
-                    <div class="futuristic-card mb-6">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Tambah Kelas Baru</h3>
+                    <div class="elegant-card mb-6">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Tambah Kelas Baru</h3>
                         <div class="flex flex-col sm:flex-row gap-4">
-                            <input type="text" id="inputKelas" placeholder="Masukkan nama kelas (cth: X IPA 1)" class="futuristic-input flex-1">
-                            <button onclick="tambahKelas()" class="neon-button">Tambah Kelas</button>
+                            <input type="text" id="inputKelas" placeholder="Masukkan nama kelas (cth: X Mawar)" class="elegant-input flex-1">
+                            <button onclick="tambahKelas()" class="elegant-button">Tambah Kelas</button>
                         </div>
                     </div>
                     
-                    <div class="futuristic-card">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Daftar Kelas</h3>
+                    <div class="elegant-card">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Daftar Kelas</h3>
                         <div id="daftarKelas" class="space-y-3"></div>
                     </div>
                 </div>
 
                 <!-- Students Section -->
                 <div id="studentsSection" class="section hidden">
-                    <div class="futuristic-card mb-6">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Tambah Siswa Baru</h3>
+                    <div class="elegant-card mb-6">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Tambah Siswa Baru</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Kelas</label>
                                 <select id="selectKelasSiswa" class="simple-select"></select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2 text-cyan-400">Nama Siswa</label>
-                                <input type="text" id="inputSiswa" placeholder="Masukkan nama siswa" class="futuristic-input">
+                                <label class="block text-sm font-medium mb-2 text-gray-600">Nama Siswa</label>
+                                <input type="text" id="inputSiswa" placeholder="Masukkan nama siswa" class="elegant-input">
                             </div>
                         </div>
-                        <button onclick="tambahSiswa()" class="neon-button">Tambah Siswa</button>
+                        <button onclick="tambahSiswa()" class="elegant-button">Tambah Siswa</button>
                     </div>
                     
-                    <div class="futuristic-card">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Daftar Siswa</h3>
+                    <div class="elegant-card">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Daftar Siswa</h3>
                         <div id="daftarSiswa" class="space-y-4"></div>
                     </div>
                 </div>
 
                 <!-- Attendance Section -->
                 <div id="attendanceSection" class="section hidden">
-                    <div class="futuristic-card mb-6">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Ambil Absensi Harian</h3>
+                    <div class="elegant-card mb-6">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Ambil Absensi Harian</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Kelas</label>
                                 <select id="selectKelasIsiAbsensi" onchange="tampilkanSiswaUntukAbsensi()" class="simple-select"></select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2 text-cyan-400">Tanggal</label>
-                                <p id="tanggalHariIni" class="text-lg font-semibold text-white p-3 bg-white/5 rounded-lg"></p>
+                                <label class="block text-sm font-medium mb-2 text-gray-600">Tanggal</label>
+                                <p id="tanggalHariIni" class="text-lg font-semibold text-gray-700 p-3 bg-gray-50 rounded-lg border border-gray-200"></p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="futuristic-card">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Absensi Siswa</h3>
-                        <div class="futuristic-table-wrapper">
-                            <table class="futuristic-table">
+                    <div class="elegant-card">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Absensi Siswa</h3>
+                        <div class="elegant-table-wrapper">
+                            <table class="elegant-table">
                                 <thead>
                                     <tr>
                                         <th class="text-left">No</th>
@@ -331,33 +377,33 @@
                                 <tbody id="tabelAbsensiSiswa"></tbody>
                             </table>
                         </div>
-                        <button onclick="simpanAbsensi()" class="neon-button mt-4">Simpan Absensi</button>
+                        <button onclick="simpanAbsensi()" class="elegant-button mt-4">Simpan Absensi</button>
                     </div>
                 </div>
 
                 <!-- View Attendance Section -->
                 <div id="viewSection" class="section hidden">
-                    <div class="futuristic-card mb-6">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Lihat & Ubah Absensi</h3>
+                    <div class="elegant-card mb-6">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Lihat & Ubah Absensi</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
-                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Kelas</label>
                                 <select id="selectKelasLihat" class="simple-select"></select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Tanggal</label>
-                                <input type="date" id="inputTanggalLihat" class="futuristic-input">
+                                <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Tanggal</label>
+                                <input type="date" id="inputTanggalLihat" class="elegant-input">
                             </div>
                             <div class="flex items-end">
-                                <button onclick="tampilkanAbsensiTersimpan()" class="neon-button w-full">Lihat Absensi</button>
+                                <button onclick="tampilkanAbsensiTersimpan()" class="elegant-button w-full">Lihat Absensi</button>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="futuristic-card">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Catatan Absensi</h3>
-                        <div class="futuristic-table-wrapper">
-                            <table class="futuristic-table">
+                    <div class="elegant-card">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Catatan Absensi</h3>
+                        <div class="elegant-table-wrapper">
+                            <table class="elegant-table">
                                 <thead>
                                     <tr>
                                         <th class="text-left">No</th>
@@ -368,7 +414,7 @@
                                 </thead>
                                 <tbody id="tabelLihatAbsensi">
                                     <tr>
-                                        <td colspan="4" class="text-center text-gray-400 py-8">Pilih kelas dan tanggal untuk melihat data absensi</td>
+                                        <td colspan="4" class="text-center text-gray-500 py-8">Pilih kelas dan tanggal untuk melihat data absensi</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -378,24 +424,24 @@
 
                 <!-- Reports Section -->
                 <div id="reportsSection" class="section hidden">
-                    <div class="futuristic-card mb-6">
-                        <h3 class="text-xl font-semibold mb-4 text-cyan-400">Jenis Laporan</h3>
+                    <div class="elegant-card mb-6">
+                        <h3 class="heading-font text-xl font-semibold mb-4 text-gray-700">Jenis Laporan</h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             <!-- Report type radios -->
-                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
-                                <input type="radio" name="reportType" value="daily" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500">
+                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="reportType" value="daily" onchange="showReportForm()" class="text-pink-500 focus:ring-pink-400">
                                 <span>Harian</span>
                             </label>
-                             <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
-                                <input type="radio" name="reportType" value="weekly" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500">
+                             <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="reportType" value="weekly" onchange="showReportForm()" class="text-pink-500 focus:ring-pink-400">
                                 <span>Mingguan</span>
                             </label>
-                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
-                                <input type="radio" name="reportType" value="monthly" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500">
+                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="reportType" value="monthly" onchange="showReportForm()" class="text-pink-500 focus:ring-pink-400">
                                 <span>Bulanan</span>
                             </label>
-                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-cyan-400/30 hover:bg-cyan-400/10 transition-colors">
-                                <input type="radio" name="reportType" value="semester" onchange="showReportForm()" class="text-cyan-400 focus:ring-cyan-500" checked>
+                            <label class="flex items-center space-x-2 cursor-pointer p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="reportType" value="semester" onchange="showReportForm()" class="text-pink-500 focus:ring-pink-400" checked>
                                 <span>Semester</span>
                             </label>
                         </div>
@@ -403,86 +449,86 @@
                         <!-- Dynamic Report Forms -->
                         <div id="reportForms">
                             <!-- Daily Report Form -->
-                            <div id="dailyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-cyan-400/10 rounded-lg">
+                            <div id="dailyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Kelas</label>
                                     <select id="selectKelasDailyLaporan" class="simple-select"></select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Tanggal</label>
-                                    <input type="date" id="inputTanggalDaily" class="futuristic-input">
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Tanggal</label>
+                                    <input type="date" id="inputTanggalDaily" class="elegant-input">
                                 </div>
                                 <div class="flex items-end">
-                                    <button onclick="generateDailyReport()" class="neon-button w-full">Buat Laporan Harian</button>
+                                    <button onclick="generateDailyReport()" class="elegant-button w-full">Buat Laporan Harian</button>
                                 </div>
                             </div>
 
                             <!-- Weekly Report Form -->
-                            <div id="weeklyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-emerald-400/10 rounded-lg">
+                            <div id="weeklyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Kelas</label>
                                     <select id="selectKelasWeeklyLaporan" class="simple-select"></select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Tanggal Mulai Minggu</label>
-                                    <input type="date" id="inputTanggalWeekly" class="futuristic-input">
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Tanggal dalam Minggu</label>
+                                    <input type="date" id="inputTanggalWeekly" class="elegant-input">
                                 </div>
                                 <div class="flex items-end">
-                                    <button onclick="generateWeeklyReport()" class="neon-button w-full">Buat Laporan Mingguan</button>
+                                    <button onclick="generateWeeklyReport()" class="elegant-button w-full">Buat Laporan Mingguan</button>
                                 </div>
                             </div>
 
                             <!-- Monthly Report Form -->
-                            <div id="monthlyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-purple-400/10 rounded-lg">
+                            <div id="monthlyForm" class="report-form hidden grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Kelas</label>
                                     <select id="selectKelasMonthlyLaporan" class="simple-select"></select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Bulan/Tahun</label>
-                                    <input type="month" id="inputBulanTahun" class="futuristic-input">
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Bulan/Tahun</label>
+                                    <input type="month" id="inputBulanTahun" class="elegant-input">
                                 </div>
                                 <div class="flex items-end">
-                                    <button onclick="generateMonthlyReport()" class="neon-button w-full">Buat Laporan Bulanan</button>
+                                    <button onclick="generateMonthlyReport()" class="elegant-button w-full">Buat Laporan Bulanan</button>
                                 </div>
                             </div>
 
                             <!-- Semester Report Form -->
-                            <div id="semesterForm" class="report-form grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-indigo-400/10 rounded-lg">
+                            <div id="semesterForm" class="report-form grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Kelas</label>
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Kelas</label>
                                     <select id="selectKelasSemesterLaporan" class="simple-select"></select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-2 text-cyan-400">Pilih Semester</label>
+                                    <label class="block text-sm font-medium mb-2 text-gray-600">Pilih Semester</label>
                                     <select id="selectSemesterLaporan" class="simple-select">
                                         <option value="ganjil">Semester Ganjil (Juli - Desember)</option>
                                         <option value="genap">Semester Genap (Januari - Juni)</option>
                                     </select>
                                 </div>
                                 <div class="flex items-end">
-                                    <button onclick="generateSemesterReport()" class="neon-button w-full">Buat Laporan Semester</button>
+                                    <button onclick="generateSemesterReport()" class="elegant-button w-full">Buat Laporan Semester</button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="flex flex-wrap gap-4 mt-6 no-print">
-                            <button onclick="cetakLaporanExcel()" class="neon-button">Ekspor ke Excel</button>
-                            <button onclick="window.print()" class="neon-button">Cetak PDF</button>
+                            <button onclick="cetakLaporanExcel()" class="elegant-button">Ekspor ke Excel</button>
+                            <button onclick="window.print()" class="elegant-button">Cetak PDF</button>
                             <!-- Gemini AI Button -->
-                            <button id="geminiAnalyzeBtn" onclick="analyzeReportWithGemini()" class="neon-button hidden">✨ Analisis Laporan dengan AI</button>
+                            <button id="geminiAnalyzeBtn" onclick="analyzeReportWithGemini()" class="elegant-button hidden">✨ Analisis dengan AI</button>
                         </div>
                     </div>
 
                     <!-- Report Display Area -->
-                    <div class="futuristic-card print-area">
+                    <div class="elegant-card print-area">
                         <div id="reportHeader" class="mb-6"></div>
                         <div id="reportContent"></div>
                     </div>
                     
                     <!-- Gemini AI Analysis Result Area -->
-                    <div id="geminiAnalysisResult" class="futuristic-card mt-6 hidden no-print"></div>
+                    <div id="geminiAnalysisResult" class="elegant-card mt-6 hidden no-print"></div>
 
                 </div>
             </div>
@@ -490,10 +536,10 @@
     </div>
 
     <!-- Elegan Loading Overlay -->
-<div id="globalLoading" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(10,10,30,0.7); backdrop-filter:blur(8px);">
+<div id="globalLoading" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(255,255,255,0.7); backdrop-filter:blur(8px);">
     <div style="height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">
         <div class="loading-spinner-animated"></div>
-        <div class="mt-6 text-cyan-400 orbitron text-xl font-bold animate-pulse">Memproses Data...</div>
+        <div class="mt-6 text-gray-600 heading-font text-xl font-bold">Memproses Data...</div>
     </div>
 </div>
 
@@ -555,39 +601,43 @@
          * @returns {Promise<any>} - The response from the server.
          */
        async function postData(body) {
-    showGlobalLoading();
-    try {
-        const formData = new FormData();
-        for (const key in body) {
-            formData.append(key, typeof body[key] === 'object' ? JSON.stringify(body[key]) : body[key]);
+            showGlobalLoading();
+            try {
+                const formData = new FormData();
+                for (const key in body) {
+                    formData.append(key, typeof body[key] === 'object' ? JSON.stringify(body[key]) : body[key]);
+                }
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === 'error') throw new Error(result.message);
+                return result;
+            } catch (error) {
+                console.error('Error posting data:', error);
+                alert(`Gagal mengirim data: ${error.message}. Pastikan URL SCRIPT_URL sudah benar.`);
+                return null;
+            } finally {
+                hideGlobalLoading();
+            }
         }
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();
-        if (result.status === 'error') throw new Error(result.message);
-        return result;
-    } catch (error) {
-        console.error('Error posting data:', error);
-        alert(`Gagal mengirim data: ${error.message}. Pastikan URL SCRIPT_URL sudah benar.`);
-        return null;
-    } finally {
-        hideGlobalLoading();
-    }
-}
 
 
         // Initialize particles
         function createParticles() {
             const bg = document.querySelector('.animated-bg');
-            if (bg.children.length > 0) return; // Don't create duplicates
-            for (let i = 0; i < 50; i++) {
+            if (bg.children.length > 0) return; 
+            for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
+                const size = Math.random() * 150 + 50;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDuration = Math.random() * 15 + 15 + 's';
+                particle.style.animationDelay = Math.random() * -20 + 's';
+                particle.style.background = i % 2 === 0 ? 'rgba(234, 184, 245, 0.5)' : 'rgba(247, 197, 204, 0.5)';
                 bg.appendChild(particle);
             }
         }
@@ -605,6 +655,7 @@
             loginSpinner.classList.remove('hidden');
             
             setTimeout(() => {
+                // NOTE: Hardcoded credentials for demonstration. In a real app, use a secure auth system.
                 if (username === 'iyeyy' && password === 'iyeyyatuu') {
                     if (SCRIPT_URL === "PASTE YOUR SCRIPT URL HERE") {
                         alert("Login berhasil, tetapi Anda belum memasukkan URL Google Apps Script. Silakan ikuti petunjuk untuk menghubungkan ke spreadsheet.");
@@ -626,6 +677,7 @@
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            // Reset app state on logout
             appState = { classes: [], students: {}, attendance: {} };
         }
 
@@ -667,15 +719,15 @@
                 document.getElementById('totalStudents').textContent = result.totalStudents || 0;
                 document.getElementById('todayAttendance').textContent = result.totalAttendanceToday || 0;
                 statusTextElem.textContent = 'Daring';
-                statusTextElem.classList.remove('text-red-400');
-                statusTextElem.classList.add('text-green-400');
+                statusTextElem.classList.remove('text-red-500');
+                statusTextElem.classList.add('text-green-500');
             } else {
                 document.getElementById('totalClasses').textContent = '-';
                 document.getElementById('totalStudents').textContent = '-';
                 document.getElementById('todayAttendance').textContent = '-';
                 statusTextElem.textContent = 'Luring';
-                statusTextElem.classList.remove('text-green-400');
-                statusTextElem.classList.add('text-red-400');
+                statusTextElem.classList.remove('text-green-500');
+                statusTextElem.classList.add('text-red-500');
             }
         }
 
@@ -736,14 +788,14 @@
             const data = await fetchData('readClasses');
             appState.classes = data || [];
             if (!appState.classes.length) {
-                container.innerHTML = '<p class="text-gray-400 text-center py-8">Belum ada kelas.</p>';
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada kelas.</p>';
                 return;
             }
             container.innerHTML = appState.classes.map(k => `
-                <div class="flex flex-col sm:flex-row justify-between items-center p-4 bg-white/5 rounded-lg border border-cyan-400/20 hover:border-cyan-400/50 transition-colors gap-2">
-                    <span class="text-white font-medium">${k}</span>
+                <div class="flex flex-col sm:flex-row justify-between items-center p-4 bg-gray-50/50 rounded-lg border border-gray-200 hover:border-pink-200 transition-colors gap-2">
+                    <span class="text-gray-700 font-medium">${k}</span>
                     <div class="space-x-2 flex-shrink-0">
-                        <button onclick="hapusKelas('${k}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors">Hapus</button>
+                        <button onclick="hapusKelas('${k}')" class="px-3 py-1 bg-red-500 hover:bg-red-600 rounded text-white text-sm transition-colors">Hapus</button>
                     </div>
                 </div>
             `).join('');
@@ -788,19 +840,19 @@
             }
 
             if (Object.keys(appState.students).length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-center py-8">Belum ada siswa.</p>';
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada siswa.</p>';
                 return;
             }
 
             container.innerHTML = Object.entries(appState.students).map(([kelas, siswas]) => `
                 <div class="mb-6">
-                    <h4 class="text-lg font-semibold text-cyan-400 mb-3">${kelas}</h4>
+                    <h4 class="heading-font text-lg font-semibold text-gray-600 mb-3">${kelas}</h4>
                     <div class="space-y-2">
                         ${siswas.map((s, idx) => `
-                            <div class="flex flex-col sm:flex-row justify-between items-center p-3 bg-white/5 rounded-lg border border-cyan-400/20 hover:border-cyan-400/50 transition-colors gap-2">
-                                <span class="text-white"><span class="font-bold mr-2">${idx + 1}.</span>${s.NamaSiswa}</span>
+                            <div class="flex flex-col sm:flex-row justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-200 hover:border-pink-200 transition-colors gap-2">
+                                <span class="text-gray-700"><span class="font-bold mr-2">${idx + 1}.</span>${s.NamaSiswa}</span>
                                 <div class="space-x-2 flex-shrink-0">
-                                    <button onclick="hapusSiswa('${s.ID}', '${s.NamaKelas}')" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors">Hapus</button>
+                                    <button onclick="hapusSiswa('${s.ID}', '${s.NamaKelas}')" class="px-3 py-1 bg-red-500 hover:bg-red-600 rounded text-white text-sm transition-colors">Hapus</button>
                                 </div>
                             </div>
                         `).join('') || '<p class="text-gray-500 italic px-3">Tidak ada siswa di kelas ini.</p>'}
@@ -868,11 +920,11 @@
             }
 
             if (siswa.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400 py-8">Tidak ada siswa di kelas ini.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-gray-500 py-8">Tidak ada siswa di kelas ini.</td></tr>';
                 return;
             }
             tbody.innerHTML = siswa.map((s, idx) => `
-                <tr class="hover:bg-cyan-400/5 transition-colors">
+                <tr class="hover:bg-pink-50/50 transition-colors">
                     <td class="py-3 px-4 font-bold">${idx + 1}.</td>
                     <td class="py-3 px-4">${s.NamaSiswa}</td>
                     <td class="py-3 px-4">
@@ -930,17 +982,17 @@
             dataTampil = appState.attendance[cacheKey];
 
             if (dataTampil.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-400 py-8">Tidak ada data absensi untuk kelas dan tanggal ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 py-8">Tidak ada data absensi untuk kelas dan tanggal ini.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = dataTampil.map((data, idx) => `
-                <tr class="hover:bg-cyan-400/5 transition-colors">
+                <tr class="hover:bg-pink-50/50 transition-colors">
                     <td class="py-3 px-4 font-bold">${idx + 1}.</td>
                     <td class="py-3 px-4 font-medium">${data.NamaSiswa}</td>
                     <td class="py-3 px-4">${data.Status}</td>
                     <td class="py-3 px-4">
-                        <button onclick="editAbsensi('${data.ID}', '${data.NamaKelas}', '${data.Tanggal}', '${data.Status}')" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 rounded text-sm transition-colors">Ubah</button>
+                        <button onclick="editAbsensi('${data.ID}', '${data.NamaKelas}', '${data.Tanggal}', '${data.Status}')" class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 rounded text-white text-sm transition-colors">Ubah</button>
                     </td>
                 </tr>
             `).join('');
@@ -975,106 +1027,181 @@
             document.getElementById('reportHeader').innerHTML = '';
         }
 
+        // Handler tombol laporan
+        function generateDailyReport() {
+            generateReport('daily', { selectKelas: 'selectKelasDailyLaporan', inputTanggal: 'inputTanggalDaily' });
+        }
+        function generateWeeklyReport() {
+            generateReport('weekly', { selectKelas: 'selectKelasWeeklyLaporan', inputTanggal: 'inputTanggalWeekly' });
+        }
+        function generateMonthlyReport() {
+            generateReport('monthly', { selectKelas: 'selectKelasMonthlyLaporan', inputBulanTahun: 'inputBulanTahun' });
+        }
+        function generateSemesterReport() {
+            generateReport('semester', { selectKelas: 'selectKelasSemesterLaporan', selectSemester: 'selectSemesterLaporan' });
+        }
+
+        /**
+         * Gets the Monday and Sunday of a week containing the given date.
+         * @param {string} dateStr - A date string in 'YYYY-MM-DD' format.
+         * @returns {{start: string, end: string}} - The start and end dates of the week.
+         */
+        function getWeekRangeByMonday(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const day = date.getDay(); // Sunday: 0, Monday: 1, ..., Saturday: 6
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+            const monday = new Date(date.setDate(diff));
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            return { 
+                start: monday.toISOString().split('T')[0], 
+                end: sunday.toISOString().split('T')[0] 
+            };
+        }
+        
         async function generateReport(reportType, elementIds) {
-            const kelas = document.getElementById(elementIds.selectKelas).value;
-            if (!kelas || kelas.startsWith('Buat kelas')) { alert("Pilih kelas yang valid."); return; }
-            
-            const geminiBtn = document.getElementById('geminiAnalyzeBtn');
-            const geminiResult = document.getElementById('geminiAnalysisResult');
-            geminiBtn.classList.add('hidden');
-            geminiResult.classList.add('hidden');
-            
-            let startDate, endDate;
-            const reportHeaderElem = document.getElementById('reportHeader');
-            const reportContentElem = document.getElementById('reportContent');
-            reportHeaderElem.innerHTML = '';
-            reportContentElem.innerHTML = '<div class="loading-spinner mx-auto my-8"></div>';
-            
-            const year = new Date().getFullYear();
-            let periodText = '';
-            
-            switch(reportType) {
-                case 'daily':
-                    startDate = endDate = document.getElementById(elementIds.inputTanggal).value;
-                    if (!startDate) { alert("Pilih tanggal yang valid."); reportContentElem.innerHTML = ''; return; }
-                    periodText = `Tanggal: ${new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
-                    break;
-                case 'weekly':
-                    const startOfWeek = new Date(document.getElementById(elementIds.inputTanggal).value + 'T00:00:00');
-                    if (isNaN(startOfWeek.getTime())) { alert("Pilih tanggal mulai minggu yang valid."); reportContentElem.innerHTML = ''; return; }
-                    const endOfWeek = new Date(startOfWeek);
-                    endOfWeek.setDate(startOfWeek.getDate() + 6);
-                    startDate = startOfWeek.toISOString().split('T')[0];
-                    endDate = endOfWeek.toISOString().split('T')[0];
-                    periodText = `Periode: ${startOfWeek.toLocaleDateString('id-ID')} - ${endOfWeek.toLocaleDateString('id-ID')}`;
-                    break;
-                case 'monthly':
-                    const monthYear = document.getElementById(elementIds.inputBulanTahun).value;
-                    if (!monthYear) { alert("Pilih bulan/tahun yang valid."); reportContentElem.innerHTML = ''; return; }
-                    const [mYear, mMonth] = monthYear.split('-');
-                    startDate = `${monthYear}-01`;
-                    const lastDay = new Date(mYear, mMonth, 0).getDate();
-                    endDate = `${monthYear}-${String(lastDay).padStart(2, '0')}`;
-                    periodText = `Bulan: ${new Date(mYear, mMonth - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
-                    break;
-                case 'semester':
-                    const semester = document.getElementById(elementIds.selectSemester).value;
-                    const semesterMonths = semester === 'ganjil' ? {start: `${year}-07-01`, end: `${year}-12-31`} : {start: `${year}-01-01`, end: `${year}-06-30`};
-                    startDate = semesterMonths.start;
-                    endDate = semesterMonths.end;
-                    periodText = `Semester: ${semester === 'ganjil' ? 'Ganjil' : 'Genap'} ${year}`;
-                    break;
-            }
-            
-            const reportData = await fetchData('readReportData', { reportType, NamaKelas: kelas, startDate, endDate });
+            showGlobalLoading();
+            try {
+                const kelas = document.getElementById(elementIds.selectKelas).value;
+                if (!kelas || kelas.startsWith('Buat kelas')) {
+                    alert("Pilih kelas yang valid.");
+                    return;
+                }
 
-            if (!reportData) {
-                reportContentElem.innerHTML = '<p class="text-center text-gray-400 py-8">Gagal memuat data laporan.</p>';
-                return;
-            }
-            if (reportData.length === 0) {
-                reportContentElem.innerHTML = '<p class="text-center text-gray-400 py-8">Tidak ada data absensi pada periode ini.</p>';
-                return;
-            }
+                const geminiBtn = document.getElementById('geminiAnalyzeBtn');
+                const geminiResult = document.getElementById('geminiAnalysisResult');
+                geminiBtn.classList.add('hidden');
+                geminiResult.classList.add('hidden');
 
-            const reportName = `LAPORAN ABSENSI ${reportType.toUpperCase()}`;
-            const header = `<div class="text-center mb-6"><h3 class="orbitron text-2xl font-bold text-cyan-400 mb-2">${reportName}</h3><p class="text-lg text-white">Kelas: ${kelas}</p><p class="text-lg text-white">${periodText}</p><div class="w-24 h-1 bg-gradient-to-r from-cyan-400 to-purple-500 mx-auto mt-4 rounded"></div></div>`;
-            
-            let tableContent = '';
-            let summary = '';
-            
-            if (reportType === 'daily') {
-                tableContent = createDailyTable(reportData);
-            } else if (reportType === 'weekly' || reportType === 'monthly') {
-                tableContent = createWeeklyMonthlyTable(reportData, startDate, endDate);
-                summary = createWeeklyMonthlySummary(reportData);
-            } else { // Semester
-                tableContent = createSemesterTable(reportData);
-                summary = createSummary(reportData.reduce((acc, curr) => {
-                    acc.Hadir += curr.hadir;
-                    acc.Sakit += curr.sakit;
-                    acc.Izin += curr.izin;
-                    acc.Alfa += curr.alfa;
-                    return acc;
-                }, { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0 }));
+                let startDate, endDate;
+                let reportData;
+                let detailedDataForSummary = null;
+                const reportHeaderElem = document.getElementById('reportHeader');
+                const reportContentElem = document.getElementById('reportContent');
+                reportHeaderElem.innerHTML = '';
+                reportContentElem.innerHTML = '<div class="loading-spinner mx-auto my-8"></div>';
+
+                const year = new Date().getFullYear();
+                let periodText = '';
+
+                switch (reportType) {
+                    case 'daily':
+                        startDate = endDate = document.getElementById(elementIds.inputTanggal).value;
+                        if (!startDate) { alert("Pilih tanggal yang valid."); reportContentElem.innerHTML = ''; return; }
+                        periodText = `Tanggal: ${new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+                        reportData = await fetchData('readAttendance', { NamaKelas: kelas, tanggal: startDate });
+                        break;
+                    case 'weekly':
+                        const anyDateInWeek = document.getElementById(elementIds.inputTanggal).value;
+                        if (!anyDateInWeek) { alert("Pilih tanggal dalam minggu yang valid."); reportContentElem.innerHTML = ''; return; }
+                        const weekRange = getWeekRangeByMonday(anyDateInWeek);
+                        startDate = weekRange.start;
+                        endDate = weekRange.end;
+                        periodText = `Periode: ${new Date(startDate+'T00:00:00').toLocaleDateString('id-ID')} - ${new Date(endDate+'T00:00:00').toLocaleDateString('id-ID')}`;
+                        reportData = await fetchData('readReportData', { reportType: 'weekly', NamaKelas: kelas, startDate, endDate });
+                        break;
+                    case 'monthly':
+                        const monthYear = document.getElementById(elementIds.inputBulanTahun).value;
+                        if (!monthYear) { alert("Pilih bulan/tahun yang valid."); reportContentElem.innerHTML = ''; return; }
+                        const [mYear, mMonth] = monthYear.split('-');
+                        startDate = `${monthYear}-01`;
+                        const lastDay = new Date(mYear, mMonth, 0).getDate();
+                        endDate = `${monthYear}-${String(lastDay).padStart(2, '0')}`;
+                        periodText = `Bulan: ${new Date(mYear, mMonth - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+                        reportData = await fetchData('readReportData', { reportType: 'monthly', NamaKelas: kelas, startDate, endDate });
+                        break;
+                    case 'semester':
+                        const semester = document.getElementById(elementIds.selectSemester).value;
+                        const semesterMonths = semester === 'ganjil' 
+                            ? { start: `${year}-07-01`, end: `${year}-12-31` } 
+                            : { start: `${year}-01-01`, end: `${year}-06-30` };
+                        startDate = semesterMonths.start;
+                        endDate = semesterMonths.end;
+                        periodText = `Semester: ${semester === 'ganjil' ? 'Ganjil' : 'Genap'} ${year}`;
+                        
+                        detailedDataForSummary = await fetchData('readReportData', { reportType: 'monthly', NamaKelas: kelas, startDate, endDate });
+
+                        if (detailedDataForSummary) {
+                            reportData = detailedDataForSummary.map(siswa => {
+                                const rekap = { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0 };
+                                if (siswa.absensi) {
+                                    for (const date in siswa.absensi) {
+                                        const statusInitial = siswa.absensi[date] ? siswa.absensi[date][0] : '';
+                                        if (statusInitial === 'H') rekap.Hadir++;
+                                        else if (statusInitial === 'S') rekap.Sakit++;
+                                        else if (statusInitial === 'I') rekap.Izin++;
+                                        else if (statusInitial === 'A') rekap.Alfa++;
+                                    }
+                                }
+                                return {
+                                    NamaSiswa: siswa.NamaSiswa,
+                                    rekap: rekap
+                                };
+                            });
+                        } else {
+                            reportData = [];
+                        }
+                        break;
+                }
+
+                if (!reportData) {
+                    reportContentElem.innerHTML = '<p class="text-center text-gray-500 py-8">Gagal memuat data laporan.</p>';
+                    return;
+                }
+                if (reportData.length === 0) {
+                    reportContentElem.innerHTML = '<p class="text-center text-gray-500 py-8">Tidak ada data absensi pada periode ini.</p>';
+                    return;
+                }
+
+                const reportName = `Laporan Absensi ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}`;
+                const header = `<div class="text-center mb-6"><h3 class="heading-font text-2xl font-bold text-gray-700 mb-2">${reportName}</h3><p class="text-lg text-gray-600">Kelas: ${kelas}</p><p class="text-lg text-gray-600">${periodText}</p><div class="w-24 h-1 bg-gradient-to-r from-accent-primary to-accent-secondary mx-auto mt-4 rounded"></div></div>`;
+                
+                let tableContent = '';
+                let summary = '';
+                
+                if (reportType === 'daily') {
+                    tableContent = createDailyTable(reportData);
+                } else if (reportType === 'weekly' || reportType === 'monthly') {
+                    tableContent = createWeeklyMonthlyTable(reportData, startDate, endDate);
+                    summary = createWeeklyMonthlySummary(reportData, startDate, endDate, reportType);
+                } else { // Semester
+                    tableContent = createSemesterTable(reportData);
+                    summary = createSemesterSummary(detailedDataForSummary, startDate, endDate);
+                }
+                
+                reportHeaderElem.innerHTML = header;
+                reportContentElem.innerHTML = tableContent + summary;
+                geminiBtn.classList.remove('hidden');
+            } finally {
+                hideGlobalLoading();
             }
-            
-            reportHeaderElem.innerHTML = header;
-            reportContentElem.innerHTML = tableContent + summary;
-            geminiBtn.classList.remove('hidden');
         }
-
+        
         function createDailyTable(data) {
-            return `<div class="futuristic-table-wrapper">
-                <table class="print-table futuristic-table min-w-[400px]">
-                    <thead><tr><th>No</th><th>Nama Siswa</th><th>Keterangan</th></tr></thead>
-                    <tbody>
-                        ${data.map((row, i) => `<tr><td>${i + 1}</td><td>${row.NamaSiswa}</td><td>${row.status}</td></tr>`).join('')}
-                    </tbody>
-                </table>
-            </div>`;
-        }
+            const rows = data.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.NamaSiswa}</td>
+                    <td>${item.Status}</td>
+                </tr>
+            `).join('');
 
+            return `
+                <div class="elegant-table-wrapper">
+                    <table class="elegant-table print-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Siswa</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
         function createWeeklyMonthlyTable(data, startDate, endDate) {
             const dates = [];
             let current = new Date(startDate + 'T00:00:00');
@@ -1083,54 +1210,171 @@
                 dates.push(current.toISOString().split('T')[0]);
                 current.setDate(current.getDate() + 1);
             }
-            let table = `<div class="futuristic-table-wrapper"><table class="print-table futuristic-table min-w-[800px]"><thead><tr><th>No</th><th>Nama Siswa</th>`;
-            dates.forEach(d => { table += `<th class="text-center">${new Date(d + 'T00:00:00').getDate()}</th>`; });
-            table += `<th class="text-center">Hadir</th><th class="text-center">Alfa</th><th class="text-center">Izin</th><th class="text-center">Sakit</th></tr></thead><tbody>`;
-            data.forEach((row, i) => {
-                let hadir = 0, alfa = 0, izin = 0, sakit = 0;
-                table += `<tr><td>${i + 1}</td><td>${row.NamaSiswa}</td>`;
-                dates.forEach(d => {
-                    let status = row.absensi[d] ? row.absensi[d] : '-';
-                    table += `<td class="text-center">${status.charAt(0)}</td>`;
-                    if (status === 'Hadir') hadir++;
-                    else if (status === 'Alfa') alfa++;
-                    else if (status === 'Izin') izin++;
-                    else if (status === 'Sakit') sakit++;
-                });
-                table += `<td class="text-center">${hadir}</td><td class="text-center">${alfa}</td><td class="text-center">${izin}</td><td class="text-center">${sakit}</td></tr>`;
-            });
-            table += `</tbody></table></div>`;
-            return table;
+
+            const dateHeaders = dates.map(d => `<th class="text-center">${new Date(d + 'T00:00:00').getDate()}</th>`).join('');
+            
+            const bodyRows = data.map((siswa, index) => {
+                let rekap = { H: 0, S: 0, I: 0, A: 0 };
+                const statusCells = dates.map(d => {
+                    const statusInitial = siswa.absensi[d] ? siswa.absensi[d][0] : '-';
+                    if (statusInitial === 'H') rekap.H++;
+                    else if (statusInitial === 'S') rekap.S++;
+                    else if (statusInitial === 'I') rekap.I++;
+                    else if (statusInitial === 'A') rekap.A++;
+                    return `<td class="text-center">${statusInitial}</td>`;
+                }).join('');
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${siswa.NamaSiswa}</td>
+                        ${statusCells}
+                        <td class="text-center font-semibold text-green-600">${rekap.H}</td>
+                        <td class="text-center font-semibold text-yellow-600">${rekap.S}</td>
+                        <td class="text-center font-semibold text-blue-600">${rekap.I}</td>
+                        <td class="text-center font-semibold text-red-600">${rekap.A}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="elegant-table-wrapper">
+                    <table class="elegant-table print-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">No</th>
+                                <th rowspan="2">Nama Siswa</th>
+                                <th colspan="${dates.length}" class="text-center">Tanggal</th>
+                                <th colspan="4" class="text-center">Jumlah</th>
+                            </tr>
+                            <tr>
+                                ${dateHeaders}
+                                <th class="text-green-600">H</th>
+                                <th class="text-yellow-600">S</th>
+                                <th class="text-blue-600">I</th>
+                                <th class="text-red-600">A</th>
+                            </tr>
+                        </thead>
+                        <tbody>${bodyRows}</tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <p>Keterangan: H=Hadir, S=Sakit, I=Izin, A=Alfa, -=Libur/Belum Diisi</p>
+                </div>
+            `;
         }
-        
+
         function createSemesterTable(data) {
-            return `<div class="futuristic-table-wrapper"><table class="print-table futuristic-table min-w-[800px]"><thead><tr><th class="text-left">No</th><th class="text-left">Nama Siswa</th><th class="text-center">Hadir</th><th class="text-center">Sakit</th><th class="text-center">Izin</th><th class="text-center">Alfa</th><th class="text-center">Total Hari</th></tr></thead><tbody>
-                ${data.map((siswa, index) => `<tr><td>${index + 1}</td><td>${siswa.NamaSiswa}</td><td class="text-center">${siswa.hadir}</td><td class="text-center">${siswa.sakit}</td><td class="text-center">${siswa.izin}</td><td class="text-center">${siswa.alfa}</td><td class="text-center">${siswa.total}</td></tr>`).join('')}
-            </tbody></table></div>`;
+            const bodyRows = data.map((siswa, index) => {
+                const hadir = siswa.rekap.Hadir || 0;
+                const sakit = siswa.rekap.Sakit || 0;
+                const izin = siswa.rekap.Izin || 0;
+                const alfa = siswa.rekap.Alfa || 0;
+                const totalTidakHadir = sakit + izin + alfa;
+
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${siswa.NamaSiswa}</td>
+                        <td class="text-center">${hadir}</td>
+                        <td class="text-center">${sakit}</td>
+                        <td class="text-center">${izin}</td>
+                        <td class="text-center">${alfa}</td>
+                        <td class="text-center">${totalTidakHadir}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="elegant-table-wrapper">
+                    <table class="elegant-table print-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">No</th>
+                                <th rowspan="2">Nama Siswa</th>
+                                <th colspan="4" class="text-center">Rekapitulasi</th>
+                                <th rowspan="2">Total Tidak Hadir</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center">H</th>
+                                <th class="text-center">S</th>
+                                <th class="text-center">I</th>
+                                <th class="text-center">A</th>
+                            </tr>
+                        </thead>
+                        <tbody>${bodyRows}</tbody>
+                    </table>
+                </div>
+            `;
         }
 
-        function createWeeklyMonthlySummary(data) {
-            let total = { Hadir: 0, Alfa: 0, Izin: 0, Sakit: 0 };
-            data.forEach(row => {
-                Object.values(row.absensi || {}).forEach(status => {
-                    if (status === 'Hadir') total.Hadir++;
-                    else if (status === 'Alfa') total.Alfa++;
-                    else if (status === 'Izin') total.Izin++;
-                    else if (status === 'Sakit') total.Sakit++;
-                });
-            });
-            return createSummary(total);
+        function createWeeklyMonthlySummary(reportData, startDate, endDate, reportType) {
+            const totalSiswa = reportData.length;
+            const uniqueDatesWithAttendance = new Set(reportData.flatMap(siswa => Object.keys(siswa.absensi)));
+            const hariTerisi = uniqueDatesWithAttendance.size;
+
+            const start = new Date(startDate + 'T00:00:00');
+            const end = new Date(endDate + 'T00:00:00');
+            const totalHariDalamPeriode = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            
+            const libur = totalHariDalamPeriode - hariTerisi;
+            const title = `Ringkasan ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}`;
+
+            return `<div class="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200 no-print">
+                <h4 class="heading-font text-lg font-semibold mb-4 text-gray-700">${title}</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-green-100/50 rounded-lg border border-green-200">
+                        <div class="text-3xl font-bold text-green-600">${hariTerisi}</div>
+                        <div class="text-sm text-gray-500">Hari Efektif</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-200/50 rounded-lg border border-gray-300">
+                        <div class="text-3xl font-bold text-gray-600">${libur}</div>
+                        <div class="text-sm text-gray-500">Hari Libur</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-100/50 rounded-lg border border-purple-200">
+                        <div class="text-3xl font-bold text-purple-600">${totalSiswa}</div>
+                        <div class="text-sm text-gray-500">Jumlah Siswa</div>
+                    </div>
+                </div>
+            </div>`;
         }
 
-        function generateDailyReport() { generateReport('daily', { selectKelas: 'selectKelasDailyLaporan', inputTanggal: 'inputTanggalDaily' }); }
-        function generateWeeklyReport() { generateReport('weekly', { selectKelas: 'selectKelasWeeklyLaporan', inputTanggal: 'inputTanggalWeekly' }); }
-        function generateMonthlyReport() { generateReport('monthly', { selectKelas: 'selectKelasMonthlyLaporan', inputBulanTahun: 'inputBulanTahun' }); }
-        function generateSemesterReport() { generateReport('semester', { selectKelas: 'selectKelasSemesterLaporan', selectSemester: 'selectSemesterLaporan' }); }
+        function createSemesterSummary(reportData, startDate, endDate) {
+            if (!reportData || reportData.length === 0) return '';
 
-        function createSummary(summaryData) {
-            const total = (summaryData.Hadir || 0) + (summaryData.Sakit || 0) + (summaryData.Izin || 0) + (summaryData.Alfa || 0);
-            return `<div class="mt-6 p-6 bg-gradient-to-r from-cyan-400/10 to-purple-500/10 rounded-lg border border-cyan-400/30"><h4 class="text-lg font-semibold mb-4 text-cyan-400 orbitron">RINGKASAN KEHADIRAN</h4><div class="grid grid-cols-2 sm:grid-cols-5 gap-4"><div class="text-center p-4 bg-green-500/20 rounded-lg border border-green-500/30"><div class="text-3xl font-bold text-green-400 orbitron">${summaryData.Hadir || 0}</div><div class="text-sm text-gray-300">Hadir</div></div><div class="text-center p-4 bg-yellow-500/20 rounded-lg border border-yellow-500/30"><div class="text-3xl font-bold text-yellow-400 orbitron">${summaryData.Sakit || 0}</div><div class="text-sm text-gray-300">Sakit</div></div><div class="text-center p-4 bg-blue-500/20 rounded-lg border border-blue-500/30"><div class="text-3xl font-bold text-blue-400 orbitron">${summaryData.Izin || 0}</div><div class="text-sm text-gray-300">Izin</div></div><div class="text-center p-4 bg-red-500/20 rounded-lg border border-red-500/30"><div class="text-3xl font-bold text-red-400 orbitron">${summaryData.Alfa || 0}</div><div class="text-sm text-gray-300">Alfa</div></div><div class="col-span-2 sm:col-span-1 text-center p-4 bg-gray-500/20 rounded-lg border border-gray-500/30"><div class="text-3xl font-bold text-gray-300 orbitron">${total}</div><div class="text-sm text-gray-300">Total</div></div></div></div>`;
+            const totalSiswa = reportData.length;
+            const uniqueDatesWithAttendance = new Set(reportData.flatMap(siswa => Object.keys(siswa.absensi || {})));
+            const hariTerisi = uniqueDatesWithAttendance.size;
+
+            const start = new Date(startDate + 'T00:00:00');
+            const end = new Date(endDate + 'T00:00:00');
+            const totalHariDalamPeriode = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            
+            const libur = totalHariDalamPeriode - hariTerisi;
+
+            return `<div class="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200 no-print">
+                <h4 class="heading-font text-lg font-semibold mb-4 text-gray-700">Ringkasan Semester</h4>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-blue-100/50 rounded-lg border border-blue-200">
+                        <div class="text-3xl font-bold text-blue-600">6</div>
+                        <div class="text-sm text-gray-500">Bulan</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-100/50 rounded-lg border border-green-200">
+                        <div class="text-3xl font-bold text-green-600">${hariTerisi}</div>
+                        <div class="text-sm text-gray-500">Hari Efektif</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-200/50 rounded-lg border border-gray-300">
+                        <div class="text-3xl font-bold text-gray-600">${libur}</div>
+                        <div class="text-sm text-gray-500">Hari Libur</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-100/50 rounded-lg border border-purple-200">
+                        <div class="text-3xl font-bold text-purple-600">${totalSiswa}</div>
+                        <div class="text-sm text-gray-500">Jumlah Siswa</div>
+                    </div>
+                </div>
+            </div>`;
         }
+
 
         function cetakLaporanExcel() {
             const reportContent = document.getElementById('reportContent');
@@ -1162,47 +1406,44 @@
             const reportHeaderElem = document.getElementById('reportHeader');
             const reportContentElem = document.getElementById('reportContent');
             const analysisResultElem = document.getElementById('geminiAnalysisResult');
+            
+            const reportTitle = reportHeaderElem.querySelector('h3')?.innerText || 'Laporan Absensi';
+            const reportDetails = Array.from(reportHeaderElem.querySelectorAll('p')).map(p => p.innerText).join('\n');
+            const tableElement = reportContentElem.querySelector('table');
+            const reportData = tableElement ? tableElement.innerText : 'Tidak ada data tabel.';
 
-            if (!reportHeaderElem.innerText || !reportContentElem.querySelector('table')) {
-                alert('Silakan buat laporan terlebih dahulu sebelum menganalisis.');
+            if (!tableElement) {
+                alert("Tidak ada data laporan untuk dianalisis.");
                 return;
             }
-
-            analysisResultElem.classList.remove('hidden');
-            analysisResultElem.innerHTML = `<div class="flex items-center gap-4"><div class="loading-spinner"></div><p class="text-lg text-cyan-400">AI sedang menganalisis laporan, mohon tunggu...</p></div>`;
-
-            const reportTitle = reportHeaderElem.querySelector('h3').innerText;
-            const reportDetails = Array.from(reportHeaderElem.querySelectorAll('p')).map(p => p.innerText).join('\n');
-            const tableRows = Array.from(reportContentElem.querySelectorAll('tr'));
-            const reportData = tableRows.map(row => {
-                const cells = Array.from(row.querySelectorAll('th, td'));
-                return cells.map(cell => cell.innerText).join('\t|\t');
-            }).join('\n');
             
+            analysisResultElem.classList.remove('hidden');
+            analysisResultElem.innerHTML = '<div class="loading-spinner mx-auto"></div><p class="text-center mt-2 text-gray-500">AI sedang menganalisis...</p>';
+
             const prompt = `
                 Anda adalah asisten guru yang ahli dalam menganalisis data absensi siswa.
-                Tugas Anda adalah memberikan analisis singkat, padat, dan bermanfaat dari data laporan berikut.
+                Tugas Anda adalah memberikan analisis singkat, padat, dan bermanfaat dari data laporan berikut dalam format HTML.
 
                 **Data Laporan:**
                 Judul: ${reportTitle}
                 Detail: ${reportDetails}
-                Tabel Data:
+                Tabel Data (dalam format teks):
                 ${reportData}
 
                 **Instruksi Analisis:**
                 1.  **Ringkasan Umum:** Berikan ringkasan singkat tentang tingkat kehadiran secara keseluruhan (misalnya: "Kehadiran secara umum baik", "Perlu perhatian pada beberapa siswa").
                 2.  **Siswa yang Perlu Diperhatikan:** Identifikasi siswa dengan jumlah 'Alfa' atau 'Sakit' yang tinggi. Sebutkan nama mereka dan jumlah ketidakhadirannya.
                 3.  **Tren Positif (jika ada):** Sebutkan siswa yang memiliki kehadiran 100% (tidak ada Alfa, Sakit, atau Izin).
-                4.  **Saran (opsional):** Berikan satu saran singkat yang bisa dilakukan guru berdasarkan data ini.
+                4.  **Saran:** Berikan satu atau dua saran singkat yang bisa dilakukan guru berdasarkan data ini.
 
-                Format jawaban dalam HTML sederhana menggunakan heading (h4), paragraf (p), dan unordered list (ul/li).
+                Format jawaban dalam HTML sederhana menggunakan heading (<h4> dengan class 'heading-font text-lg text-gray-700'), paragraf (<p>), dan unordered list (<ul> dengan <li>). Jangan gunakan tag <html> atau <body>.
             `;
             
             try {
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "" // API Key tidak diperlukan jika menggunakan model flash
+                const apiKey = "" // API Key is not needed for flash models in this environment
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1212,7 +1453,8 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`API request failed with status ${response.status}`);
+                    const errorBody = await response.text();
+                    throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
                 }
 
                 const result = await response.json();
@@ -1222,28 +1464,29 @@
                     result.candidates[0].content.parts.length > 0) {
                     const text = result.candidates[0].content.parts[0].text;
                     analysisResultElem.innerHTML = `
-                        <h3 class="orbitron text-xl font-bold text-cyan-400 mb-4">✨ Analisis Laporan AI</h3>
-                        <div class="text-gray-300 space-y-3">${text}</div>
+                        <h3 class="heading-font text-xl font-bold text-gray-700 mb-4">✨ Analisis Laporan AI</h3>
+                        <div class="text-gray-600 space-y-3">${text}</div>
                     `;
                 } else {
-                    throw new Error("Respons dari AI tidak valid atau kosong.");
+                    const reason = result.candidates?.[0]?.finishReason;
+                    throw new Error(`Respons dari AI tidak valid atau kosong. Alasan: ${reason || 'Tidak diketahui'}`);
                 }
             } catch (error) {
                 console.error("Error calling Gemini API:", error);
                 analysisResultElem.innerHTML = `
-                    <h3 class="orbitron text-xl font-bold text-red-400 mb-4">Gagal Menganalisis</h3>
-                    <p class="text-gray-300">Terjadi kesalahan saat menghubungi layanan AI. Silakan coba lagi nanti.</p>
+                    <h3 class="heading-font text-xl font-bold text-red-500 mb-4">Gagal Menganalisis</h3>
+                    <p class="text-gray-600">Terjadi kesalahan saat menghubungi layanan AI. Silakan coba lagi nanti.</p>
                     <p class="text-xs text-gray-500 mt-2">Detail error: ${error.message}</p>
                 `;
             }
         }
 
         function showGlobalLoading() {
-    document.getElementById('globalLoading').style.display = 'block';
-}
-function hideGlobalLoading() {
-    document.getElementById('globalLoading').style.display = 'none';
-}
+            document.getElementById('globalLoading').style.display = 'flex';
+        }
+        function hideGlobalLoading() {
+            document.getElementById('globalLoading').style.display = 'none';
+        }
 
 
         document.addEventListener('DOMContentLoaded', function() {
